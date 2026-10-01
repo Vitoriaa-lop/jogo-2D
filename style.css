@@ -19,18 +19,7 @@ body {
 }
 
 #gameCanvas {
-  /* Remove a borda e o fundo para o cenário aparecer diretamente atrás dos objetos */
   background: transparent;
   border: none;
   box-shadow: none;
-}
-
-#hud {
-  position: absolute;
-  top: 15px;
-  color: #ffffff;
-  font-size: 26px;
-  font-weight: bold;
-  text-shadow: 2px 2px 6px #000000;
-  z-index: 10;
 }
