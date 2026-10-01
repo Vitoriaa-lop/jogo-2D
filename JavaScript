@@ -1,0 +1,165 @@
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+const gravity = 0.5;
+
+// Mapeamento de Teclas
+const keys = {};
+window.addEventListener("keydown", (e) => (keys[e.key] = true));
+window.addEventListener("keyup", (e) => (keys[e.key] = false));
+
+// Jogador 1 (Fireboy / Vermelho)
+const player1 = {
+  x: 50,
+  y: 300,
+  width: 30,
+  height: 40,
+  color: "#ef233c",
+  vx: 0,
+  vy: 0,
+  speed: 4,
+  jumpPower: -10,
+  grounded: false,
+};
+
+// Jogador 2 (Watergirl / Azul)
+const player2 = {
+  x: 100,
+  y: 300,
+  width: 30,
+  height: 40,
+  color: "#00b4d8",
+  vx: 0,
+  vy: 0,
+  speed: 4,
+  jumpPower: -10,
+  grounded: false,
+};
+
+// Cenário
+const platforms = [
+  { x: 0, y: 360, width: 800, height: 40 },  // Chão principal
+  { x: 200, y: 280, width: 200, height: 20 }, // Plataforma central
+  { x: 500, y: 220, width: 300, height: 20 }, // Plataforma da porta
+];
+
+const button = { x: 280, y: 270, width: 40, height: 10, pressed: false };
+const door = { x: 720, y: 140, width: 15, height: 80, open: false };
+const exitZone = { x: 745, y: 160, width: 40, height: 60 };
+
+function updatePlayer(p, controls) {
+  // Movimento horizontal
+  if (keys[controls.left]) p.vx = -p.speed;
+  else if (keys[controls.right]) p.vx = p.speed;
+  else p.vx = 0;
+
+  // Pulo
+  if (keys[controls.jump] && p.grounded) {
+    p.vy = p.jumpPower;
+    p.grounded = false;
+  }
+
+  // Gravidade
+  p.vy += gravity;
+
+  // Atualizar posição
+  p.x += p.vx;
+  p.y += p.vy;
+
+  // Colisão com Plataformas
+  p.grounded = false;
+  for (let plat of platforms) {
+    if (
+      p.x < plat.x + plat.width &&
+      p.x + p.width > plat.x &&
+      p.y + p.height > plat.y &&
+      p.y + p.height - p.vy <= plat.y
+    ) {
+      p.y = plat.y - p.height;
+      p.vy = 0;
+      p.grounded = true;
+    }
+  }
+
+  // Colisão com a Porta Fechada
+  if (!door.open) {
+    if (
+      p.x < door.x + door.width &&
+      p.x + p.width > door.x &&
+      p.y < door.y + door.height &&
+      p.y + p.height > door.y
+    ) {
+      if (p.vx > 0) p.x = door.x - p.width;
+      if (p.vx < 0) p.x = door.x + door.width;
+    }
+  }
+
+  // Limite da tela
+  if (p.x < 0) p.x = 0;
+  if (p.x + p.width > canvas.width) p.x = canvas.width - p.width;
+}
+
+function checkPuzzle() {
+  // Verificar se algum jogador está pisando no botão
+  const p1OnButton =
+    player1.x < button.x + button.width &&
+    player1.x + player1.width > button.x &&
+    player1.y + player1.height >= button.y;
+
+  const p2OnButton =
+    player2.x < button.x + button.width &&
+    player2.x + player2.width > button.x &&
+    player2.y + player2.height >= button.y;
+
+  button.pressed = p1OnButton || p2OnButton;
+  door.open = button.pressed;
+
+  // Condição de Vitória (Ambos na Zona de Saída)
+  const p1InExit = player1.x > exitZone.x && player1.x + player1.width < exitZone.x + exitZone.width;
+  const p2InExit = player2.x > exitZone.x && player2.x + player2.width < exitZone.x + exitZone.width;
+
+  if (p1InExit && p2InExit) {
+    setTimeout(() => alert("Vocês venceram a fase! 🎉"), 10);
+    player1.x = 50; player1.y = 300;
+    player2.x = 100; player2.y = 300;
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Plataformas
+  ctx.fillStyle = "#8d99ae";
+  platforms.forEach((plat) => ctx.fillRect(plat.x, plat.y, plat.width, plat.height));
+
+  // Botão
+  ctx.fillStyle = button.pressed ? "#ffb703" : "#fb8500";
+  ctx.fillRect(button.x, button.pressed ? button.y + 5 : button.y, button.width, button.pressed ? 5 : 10);
+
+  // Porta
+  if (!door.open) {
+    ctx.fillStyle = "#d90429";
+    ctx.fillRect(door.x, door.y, door.width, door.height);
+  }
+
+  // Zona de Saída
+  ctx.fillStyle = "rgba(72, 202, 228, 0.3)";
+  ctx.fillRect(exitZone.x, exitZone.y, exitZone.width, exitZone.height);
+
+  // Jogadores
+  ctx.fillStyle = player1.color;
+  ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
+
+  ctx.fillStyle = player2.color;
+  ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
+}
+
+function loop() {
+  updatePlayer(player1, { left: "a", right: "d", jump: "w" });
+  updatePlayer(player2, { left: "ArrowLeft", right: "ArrowRight", jump: "ArrowUp" });
+  checkPuzzle();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+loop();
