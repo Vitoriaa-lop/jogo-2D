@@ -113,7 +113,7 @@ function resetPlayerPos() {
 }
 
 function updateControls() {
-  // P1 (Fogo) - Teclas W, A, D
+  // P1 (Fogo) - W, A, D
   if (keys['KeyA']) player1.vx = -player1.speed;
   else if (keys['KeyD']) player1.vx = player1.speed;
   else player1.vx = 0;
@@ -123,7 +123,7 @@ function updateControls() {
     player1.grounded = false;
   }
 
-  // P2 (Água) - Setas Direcionais
+  // P2 (Água) - Setas
   if (keys['ArrowLeft']) player2.vx = -player2.speed;
   else if (keys['ArrowRight']) player2.vx = player2.speed;
   else player2.vx = 0;
@@ -195,7 +195,6 @@ function checkWin() {
 function gameLoop() {
   const currentFase = fases[faseAtual];
 
-  // Atualiza a imagem de fundo em tela cheia na transição de fases
   if (currentFase.bgImage) {
     document.body.style.backgroundImage = currentFase.bgImage;
   }
@@ -223,7 +222,7 @@ function gameLoop() {
     ctx.fillRect(h.x, h.y, h.w, h.h);
   }
 
-  // Desenha as Portas de saída
+  // Desenha as Portas
   ctx.fillStyle = '#ff4757';
   ctx.fillRect(currentFase.doors.p1.x, currentFase.doors.p1.y, currentFase.doors.p1.w, currentFase.doors.p1.h);
   ctx.fillStyle = '#1e90ff';
