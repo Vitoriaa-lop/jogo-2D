@@ -1,15 +1,13 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Carregar a nova imagem de fundo mística
+// Carregar Imagem de Fundo
 const bgImage = new Image();
 bgImage.src = "img/fundo.jpg";
 
-// Posição de rolagem contínua do fundo
 let bgScrollX = 0;
-const scrollSpeed = 0.8; // Velocidade do movimento do cenário
+const scrollSpeed = 0.8;
 
-// Ajustar o tamanho do Canvas para Tela Cheia
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -25,35 +23,80 @@ const keys = {};
 window.addEventListener("keydown", (e) => (keys[e.key] = true));
 window.addEventListener("keyup", (e) => (keys[e.key] = false));
 
-// Jogador 1 (Vermelho / Fogo)
+// Matrizes de Pixel Art (1 = Cor Principal, 2 = Detalhe/Túnica, 3 = Pele, 4 = Olhos, 5 = Chapéu)
+const pixelArtP1 = [
+  [0, 0, 0, 5, 5, 0, 0, 0],
+  [0, 0, 5, 5, 5, 5, 0, 0],
+  [0, 5, 5, 5, 5, 5, 5, 0],
+  [0, 0, 3, 3, 3, 3, 0, 0],
+  [0, 0, 4, 3, 4, 3, 0, 0],
+  [0, 1, 1, 1, 1, 1, 1, 0],
+  [1, 1, 2, 1, 1, 2, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1],
+  [0, 1, 1, 1, 1, 1, 1, 0],
+  [0, 0, 1, 0, 0, 1, 0, 0]
+];
+
+const pixelArtP2 = [
+  [0, 0, 0, 5, 5, 0, 0, 0],
+  [0, 0, 5, 5, 5, 5, 0, 0],
+  [0, 5, 5, 5, 5, 5, 5, 0],
+  [0, 0, 3, 3, 3, 3, 0, 0],
+  [0, 0, 4, 3, 4, 3, 0, 0],
+  [0, 1, 1, 1, 1, 1, 1, 0],
+  [1, 1, 2, 1, 1, 2, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1],
+  [0, 1, 1, 1, 1, 1, 1, 0],
+  [0, 0, 1, 0, 0, 1, 0, 0]
+];
+
+// Paletas de Cores dos Personagens em Pixel Art
+const colorsP1 = {
+  1: "#d90429", // Vermelho Fogo
+  2: "#ffb703", // Amarelo
+  3: "#ffdbac", // Pele
+  4: "#000000", // Olhos
+  5: "#6a040f"  // Chapéu Escuro
+};
+
+const colorsP2 = {
+  1: "#00b4d8", // Azul Água
+  2: "#90e0ef", // Azul Claro
+  3: "#ffdbac", // Pele
+  4: "#000000", // Olhos
+  5: "#03045e"  // Chapéu Escuro
+};
+
+// Jogadores
 const player1 = {
   x: 60,
   y: 0,
   width: 32,
-  height: 44,
-  color: "#ff4d4d",
+  height: 40,
   vx: 0,
   vy: 0,
   speed: 5,
   jumpPower: -11,
   grounded: false,
+  sprite: pixelArtP1,
+  palette: colorsP1
 };
 
-// Jogador 2 (Azul / Água)
 const player2 = {
   x: 120,
   y: 0,
   width: 32,
-  height: 44,
-  color: "#4cc9f0",
+  height: 40,
   vx: 0,
   vy: 0,
   speed: 5,
   jumpPower: -11,
   grounded: false,
+  sprite: pixelArtP2,
+  palette: colorsP2
 };
 
-// Elementos do Cenário
+// Cenário
 let platforms = [];
 let button = {};
 let door = {};
@@ -63,11 +106,10 @@ function updatePositions() {
   const w = canvas.width;
   const h = canvas.height;
 
-  // Plataformas alinhadas com o novo chão
   platforms = [
-    { x: 0, y: h - 75, width: w, height: 75 },            // Chão Principal
-    { x: w * 0.18, y: h - 190, width: w * 0.28, height: 18 }, // Plataforma Esquerda
-    { x: w * 0.55, y: h - 300, width: w * 0.35, height: 18 }, // Plataforma Direita
+    { x: 0, y: h - 75, width: w, height: 75 },
+    { x: w * 0.18, y: h - 190, width: w * 0.28, height: 18 },
+    { x: w * 0.55, y: h - 300, width: w * 0.35, height: 18 },
   ];
 
   button = { x: w * 0.28, y: h - 200, width: 45, height: 10, pressed: false };
@@ -79,25 +121,19 @@ function updatePositions() {
 }
 
 function updatePlayer(p, controls) {
-  // Movimento Horizontal
   if (keys[controls.left]) p.vx = -p.speed;
   else if (keys[controls.right]) p.vx = p.speed;
   else p.vx = 0;
 
-  // Pulo
   if (keys[controls.jump] && p.grounded) {
     p.vy = p.jumpPower;
     p.grounded = false;
   }
 
-  // Gravidade
   p.vy += gravity;
-
-  // Atualização de Posição
   p.x += p.vx;
   p.y += p.vy;
 
-  // Colisão com Plataformas
   p.grounded = false;
   for (let plat of platforms) {
     if (
@@ -112,7 +148,6 @@ function updatePlayer(p, controls) {
     }
   }
 
-  // Colisão com Porta Fechada
   if (!door.open) {
     if (
       p.x < door.x + door.width &&
@@ -125,13 +160,11 @@ function updatePlayer(p, controls) {
     }
   }
 
-  // Limites da Tela
   if (p.x < 0) p.x = 0;
   if (p.x + p.width > canvas.width) p.x = canvas.width - p.width;
 }
 
 function checkPuzzle() {
-  // Ativação do Botão
   const p1OnButton =
     player1.x < button.x + button.width &&
     player1.x + player1.width > button.x &&
@@ -147,7 +180,6 @@ function checkPuzzle() {
   button.pressed = p1OnButton || p2OnButton;
   door.open = button.pressed;
 
-  // Vitórias
   const p1InExit = player1.x > exitZone.x && player1.x + player1.width < exitZone.x + exitZone.width;
   const p2InExit = player2.x > exitZone.x && player2.x + player2.width < exitZone.x + exitZone.width;
 
@@ -158,10 +190,30 @@ function checkPuzzle() {
   }
 }
 
+// Função para Desenhar Personagens em Pixel Art
+function drawPixelSprite(p) {
+  const pixelSize = p.width / p.sprite[0].length;
+
+  for (let r = 0; r < p.sprite.length; r++) {
+    for (let c = 0; c < p.sprite[r].length; c++) {
+      const colorCode = p.sprite[r][c];
+      if (colorCode !== 0) {
+        ctx.fillStyle = p.palette[colorCode];
+        ctx.fillRect(
+          p.x + c * pixelSize,
+          p.y + r * pixelSize,
+          pixelSize,
+          pixelSize
+        );
+      }
+    }
+  }
+}
+
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // 1. Atualizar e Desenhar Fundo Mágico em Movimento Contínuo
+  // 1. Fundo com Movimento
   bgScrollX -= scrollSpeed;
   if (bgScrollX <= -canvas.width) {
     bgScrollX = 0;
@@ -172,15 +224,15 @@ function draw() {
     ctx.drawImage(bgImage, bgScrollX + canvas.width, 0, canvas.width, canvas.height);
   }
 
-  // 2. Plataformas Semitransparentes
+  // 2. Plataformas
   ctx.fillStyle = "rgba(25, 45, 30, 0.65)";
   platforms.forEach((plat) => ctx.fillRect(plat.x, plat.y, plat.width, plat.height));
 
-  // 3. Botão do Puzzle
+  // 3. Botão
   ctx.fillStyle = button.pressed ? "#ffb703" : "#fb8500";
   ctx.fillRect(button.x, button.pressed ? button.y + 5 : button.y, button.width, button.pressed ? 5 : 10);
 
-  // 4. Porta do Puzzle
+  // 4. Porta
   if (!door.open) {
     ctx.fillStyle = "#e63946";
     ctx.fillRect(door.x, door.y, door.width, door.height);
@@ -190,17 +242,14 @@ function draw() {
   ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
   ctx.fillRect(exitZone.x, exitZone.y, exitZone.width, exitZone.height);
 
-  // 6. Texto Informativo
+  // 6. Texto de Instruções
   ctx.fillStyle = "#ffffff";
   ctx.font = "18px Arial";
-  ctx.fillText("P1 (Vermelho): W, A, D | P2 (Azul): Setas do Teclado", 20, 35);
+  ctx.fillText("P1 (Mago de Fogo): W, A, D | P2 (Mago de Água): Setas do Teclado", 20, 35);
 
-  // 7. Personagens
-  ctx.fillStyle = player1.color;
-  ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
-
-  ctx.fillStyle = player2.color;
-  ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
+  // 7. Desenhar Personagens em Pixel Art
+  drawPixelSprite(player1);
+  drawPixelSprite(player2);
 }
 
 function loop() {
