@@ -1,6 +1,10 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+// Carregar Imagem de Fundo da pasta img/
+const bgImage = new Image();
+bgImage.src = "img/fundo.jpg";
+
 const gravity = 0.5;
 
 // Mapeamento de Teclas
@@ -8,13 +12,13 @@ const keys = {};
 window.addEventListener("keydown", (e) => (keys[e.key] = true));
 window.addEventListener("keyup", (e) => (keys[e.key] = false));
 
-// Jogador 1 (Fireboy / Vermelho)
+// Jogador 1 (Fogo / Vermelho)
 const player1 = {
   x: 50,
-  y: 300,
-  width: 30,
-  height: 40,
-  color: "#ef233c",
+  y: 280,
+  width: 28,
+  height: 38,
+  color: "#ff4d4d",
   vx: 0,
   vy: 0,
   speed: 4,
@@ -22,13 +26,13 @@ const player1 = {
   grounded: false,
 };
 
-// Jogador 2 (Watergirl / Azul)
+// Jogador 2 (Água / Azul)
 const player2 = {
-  x: 100,
-  y: 300,
-  width: 30,
-  height: 40,
-  color: "#00b4d8",
+  x: 90,
+  y: 280,
+  width: 28,
+  height: 38,
+  color: "#4cc9f0",
   vx: 0,
   vy: 0,
   speed: 4,
@@ -36,19 +40,20 @@ const player2 = {
   grounded: false,
 };
 
-// Cenário
+// Plataformas (Ajustadas para o cenário de floresta)
 const platforms = [
-  { x: 0, y: 360, width: 800, height: 40 },  // Chão principal
-  { x: 200, y: 280, width: 200, height: 20 }, // Plataforma central
-  { x: 500, y: 220, width: 300, height: 20 }, // Plataforma da porta
+  { x: 0, y: 325, width: 736, height: 89 },   // Chão principal de relva
+  { x: 180, y: 250, width: 180, height: 15 }, // Plataforma esquerda
+  { x: 450, y: 200, width: 220, height: 15 }, // Plataforma superior direita
 ];
 
-const button = { x: 280, y: 270, width: 40, height: 10, pressed: false };
-const door = { x: 720, y: 140, width: 15, height: 80, open: false };
-const exitZone = { x: 745, y: 160, width: 40, height: 60 };
+// Botão e Porta do Puzzle
+const button = { x: 250, y: 240, width: 35, height: 10, pressed: false };
+const door = { x: 620, y: 120, width: 15, height: 80, open: false };
+const exitZone = { x: 645, y: 140, width: 40, height: 60 };
 
 function updatePlayer(p, controls) {
-  // Movimento horizontal
+  // Movimento Horizontal
   if (keys[controls.left]) p.vx = -p.speed;
   else if (keys[controls.right]) p.vx = p.speed;
   else p.vx = 0;
@@ -59,10 +64,10 @@ function updatePlayer(p, controls) {
     p.grounded = false;
   }
 
-  // Gravidade
+  // Aplicação da Gravidade
   p.vy += gravity;
 
-  // Atualizar posição
+  // Atualizar Posições
   p.x += p.vx;
   p.y += p.vy;
 
@@ -81,7 +86,7 @@ function updatePlayer(p, controls) {
     }
   }
 
-  // Colisão com a Porta Fechada
+  // Colisão com Porta Fechada
   if (!door.open) {
     if (
       p.x < door.x + door.width &&
@@ -94,13 +99,13 @@ function updatePlayer(p, controls) {
     }
   }
 
-  // Limite da tela
+  // Limites da Tela
   if (p.x < 0) p.x = 0;
   if (p.x + p.width > canvas.width) p.x = canvas.width - p.width;
 }
 
 function checkPuzzle() {
-  // Verificar se algum jogador está pisando no botão
+  // Verificar se algum jogador está a pisar o botão
   const p1OnButton =
     player1.x < button.x + button.width &&
     player1.x + player1.width > button.x &&
@@ -119,17 +124,22 @@ function checkPuzzle() {
   const p2InExit = player2.x > exitZone.x && player2.x + player2.width < exitZone.x + exitZone.width;
 
   if (p1InExit && p2InExit) {
-    setTimeout(() => alert("Vocês venceram a fase! 🎉"), 10);
-    player1.x = 50; player1.y = 300;
-    player2.x = 100; player2.y = 300;
+    setTimeout(() => alert("Fase Concluída! Parabéns aos dois! 🎉"), 10);
+    player1.x = 50; player1.y = 280;
+    player2.x = 90; player2.y = 280;
   }
 }
 
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Desenhar Imagem de Fundo
+  if (bgImage.complete) {
+    ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
 
-  // Plataformas
-  ctx.fillStyle = "#8d99ae";
+  // Plataformas (Semitransparentes para combinar com o fundo)
+  ctx.fillStyle = "rgba(70, 90, 60, 0.7)";
   platforms.forEach((plat) => ctx.fillRect(plat.x, plat.y, plat.width, plat.height));
 
   // Botão
@@ -138,12 +148,12 @@ function draw() {
 
   // Porta
   if (!door.open) {
-    ctx.fillStyle = "#d90429";
+    ctx.fillStyle = "#e63946";
     ctx.fillRect(door.x, door.y, door.width, door.height);
   }
 
-  // Zona de Saída
-  ctx.fillStyle = "rgba(72, 202, 228, 0.3)";
+  // Saída (Portal / Zona Final)
+  ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
   ctx.fillRect(exitZone.x, exitZone.y, exitZone.width, exitZone.height);
 
   // Jogadores
@@ -162,4 +172,7 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-loop();
+// Iniciar o jogo assim que a imagem carregar
+bgImage.onload = () => {
+  loop();
+};
