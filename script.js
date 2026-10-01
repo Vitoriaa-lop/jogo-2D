@@ -3,18 +3,18 @@ const ctx = canvas.getContext('2d');
 
 let faseAtual = 0;
 
-// Jogador 1 (Espírito Verde da Floresta) e Jogador 2 (Espírito Roxo da Noite)
+// Jogador 1 (Fantasma Verde) e Jogador 2 (Fantasma Roxo)
 const player1 = { 
   x: 50, y: 500, width: 28, height: 38, 
   colorMain: '#2ed573', colorSecondary: '#7bed9f', glowColor: 'rgba(46, 213, 115, 0.6)',
-  eyeColor: '#ffffff', vx: 0, vy: 0, 
+  eyeColor: '#ffffff', pupilColor: '#1e272e', vx: 0, vy: 0, 
   speed: 5, jump: -12, grounded: false, element: 'green' 
 };
 
 const player2 = { 
   x: 90, y: 500, width: 28, height: 38, 
   colorMain: '#8e44ad', colorSecondary: '#9b59b6', glowColor: 'rgba(142, 68, 173, 0.6)',
-  eyeColor: '#ffffff', vx: 0, vy: 0, 
+  eyeColor: '#ffffff', pupilColor: '#1e272e', vx: 0, vy: 0, 
   speed: 5, jump: -12, grounded: false, element: 'purple' 
 };
 
@@ -24,7 +24,7 @@ const keys = {};
 window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
-// 5 Fases adaptadas aos elementos Verde e Roxo
+// 5 Fases do Jogo
 const fases = [
   {
     bgImage: 'url("img/fundo.jpg")',
@@ -113,7 +113,6 @@ function resetPlayerPos() {
 }
 
 function updateControls() {
-  // P1 - W, A, D
   if (keys['KeyA']) player1.vx = -player1.speed;
   else if (keys['KeyD']) player1.vx = player1.speed;
   else player1.vx = 0;
@@ -123,7 +122,6 @@ function updateControls() {
     player1.grounded = false;
   }
 
-  // P2 - Setas
   if (keys['ArrowLeft']) player2.vx = -player2.speed;
   else if (keys['ArrowRight']) player2.vx = player2.speed;
   else player2.vx = 0;
@@ -190,7 +188,7 @@ function checkWin() {
   }
 }
 
-// Desenhar os Personagens em tom Verde e Roxo integrados com a floresta
+// Desenhar os Personagens em formato de Fantasma
 function drawPlayer(p) {
   ctx.save();
 
@@ -198,38 +196,47 @@ function drawPlayer(p) {
   ctx.shadowColor = p.glowColor;
   ctx.shadowBlur = 12;
 
-  // Gradiente
+  // Gradiente do corpo
   let grad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.height);
   grad.addColorStop(0, p.colorSecondary);
   grad.addColorStop(1, p.colorMain);
-
   ctx.fillStyle = grad;
+
+  // Desenhar corpo de fantasma (Cabeça redonda + base ondulada)
+  const radius = p.width / 2;
+  const bottomY = p.y + p.height - 6;
+
   ctx.beginPath();
-  ctx.roundRect(p.x, p.y, p.width, p.height, [12, 12, 6, 6]);
+  // Cabeça (arco superior)
+  ctx.arc(p.x + radius, p.y + radius, radius, Math.PI, 0, false);
+  // Lado direito
+  ctx.lineTo(p.x + p.width, bottomY);
+  // Ondas na parte inferior do fantasma
+  ctx.quadraticCurveTo(p.x + p.width * 0.83, p.y + p.height, p.x + p.width * 0.66, bottomY);
+  ctx.quadraticCurveTo(p.x + p.width * 0.5, p.y + p.height - 10, p.x + p.width * 0.33, bottomY);
+  ctx.quadraticCurveTo(p.x + p.width * 0.17, p.y + p.height, p.x, bottomY);
+  // Lado esquerdo
+  ctx.lineTo(p.x, p.y + radius);
+  ctx.closePath();
   ctx.fill();
 
-  // Olhos cintilantes
+  // Olhos expressivos do fantasma
   ctx.shadowBlur = 0;
+
+  let eyeOffsetX = p.vx < 0 ? -2 : (p.vx > 0 ? 2 : 0);
+
+  // Fundo dos olhos (Branco)
   ctx.fillStyle = p.eyeColor;
-  let eyeOffset = p.vx < 0 ? 3 : (p.vx > 0 ? 13 : 8);
-  
   ctx.beginPath();
-  ctx.arc(p.x + eyeOffset, p.y + 12, 2.5, 0, Math.PI * 2);
-  ctx.arc(p.x + eyeOffset + 8, p.y + 12, 2.5, 0, Math.PI * 2);
+  ctx.ellipse(p.x + 9 + eyeOffsetX, p.y + 14, 4, 5, 0, 0, Math.PI * 2);
+  ctx.ellipse(p.x + 19 + eyeOffsetX, p.y + 14, 4, 5, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Folha na cabeça (para o verde) e Cristal/Lua (para o roxo)
-  ctx.fillStyle = p.colorSecondary;
+  // Pupilas do fantasma
+  ctx.fillStyle = p.pupilColor;
   ctx.beginPath();
-  if (p.element === 'green') {
-    // Desenho de folha
-    ctx.arc(p.x + p.width / 2, p.y - 2, 4, 0, Math.PI * 2);
-  } else {
-    // Desenho de cristal místico
-    ctx.moveTo(p.x + p.width / 2, p.y - 6);
-    ctx.lineTo(p.x + p.width / 2 + 4, p.y + 1);
-    ctx.lineTo(p.x + p.width / 2 - 4, p.y + 1);
-  }
+  ctx.arc(p.x + 9 + eyeOffsetX + (p.vx < 0 ? -1 : p.vx > 0 ? 1 : 0), p.y + 14, 2, 0, Math.PI * 2);
+  ctx.arc(p.x + 19 + eyeOffsetX + (p.vx < 0 ? -1 : p.vx > 0 ? 1 : 0), p.y + 14, 2, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.restore();
@@ -290,11 +297,11 @@ function gameLoop() {
     ctx.restore();
   }
 
-  // Portais de saída verde e roxo
+  // Portais de saída
   drawDoor(currentFase.doors.p1, '#2ed573', '🍃');
   drawDoor(currentFase.doors.p2, '#9b59b6', '🔮');
 
-  // Desenhar personagens
+  // Desenhar personagens fantasmas
   drawPlayer(player1);
   drawPlayer(player2);
 
