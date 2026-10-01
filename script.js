@@ -4,7 +4,7 @@ const faseSpan = document.getElementById('faseNum');
 
 let faseAtual = 0;
 
-// Definindo os dois jogadores
+// Definição do Jogador 1 (Fogo / Vermelho) e Jogador 2 (Água / Azul)
 const player1 = { 
   x: 50, y: 500, width: 25, height: 35, 
   color: '#ff4757', vx: 0, vy: 0, 
@@ -20,14 +20,14 @@ const player2 = {
 const gravity = 0.5;
 const keys = {};
 
-// Eventos de teclado
+// Captura de teclas pressionadas
 window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
-// 5 Fases com cenários e obstáculos próprios
+// 5 FASES com troca de imagem de fundo em tela cheia e obstáculos
 const fases = [
   {
-    bg: 'linear-gradient(to bottom, #2c3e50, #000000)',
+    bgImage: 'url("img/fundo.jpg")',
     platforms: [
       { x: 0, y: 560, w: 800, h: 40, color: '#7f8c8d' },
       { x: 200, y: 440, w: 400, h: 20, color: '#7f8c8d' },
@@ -42,7 +42,7 @@ const fases = [
     doors: { p1: { x: 350, y: 140, w: 30, h: 60 }, p2: { x: 420, y: 140, w: 30, h: 60 } }
   },
   {
-    bg: 'linear-gradient(to bottom, #11998e, #38ef7d)',
+    bgImage: 'url("img/outro fundo.jpeg")',
     platforms: [
       { x: 0, y: 560, w: 800, h: 40, color: '#227093' },
       { x: 150, y: 450, w: 150, h: 20, color: '#227093' },
@@ -57,7 +57,7 @@ const fases = [
     doors: { p1: { x: 150, y: 140, w: 30, h: 60 }, p2: { x: 620, y: 140, w: 30, h: 60 } }
   },
   {
-    bg: 'linear-gradient(to bottom, #ff4e50, #f9d423)',
+    bgImage: 'url("img/fundo.jpg")',
     platforms: [
       { x: 0, y: 560, w: 200, h: 40, color: '#d35400' },
       { x: 600, y: 560, w: 200, h: 40, color: '#d35400' },
@@ -74,7 +74,7 @@ const fases = [
     doors: { p1: { x: 340, y: 120, w: 30, h: 60 }, p2: { x: 420, y: 120, w: 30, h: 60 } }
   },
   {
-    bg: 'linear-gradient(to bottom, #83a4d4, #b6fbff)',
+    bgImage: 'url("img/outro fundo.jpeg")',
     platforms: [
       { x: 0, y: 560, w: 800, h: 40, color: '#2980b9' },
       { x: 50, y: 420, w: 200, h: 20, color: '#2980b9' },
@@ -89,7 +89,7 @@ const fases = [
     doors: { p1: { x: 120, y: 120, w: 30, h: 60 }, p2: { x: 650, y: 120, w: 30, h: 60 } }
   },
   {
-    bg: 'linear-gradient(to bottom, #4b6cb7, #182848)',
+    bgImage: 'url("img/fundo.jpg")',
     platforms: [
       { x: 0, y: 560, w: 150, h: 40, color: '#8e44ad' },
       { x: 650, y: 560, w: 150, h: 40, color: '#8e44ad' },
@@ -113,7 +113,7 @@ function resetPlayerPos() {
 }
 
 function updateControls() {
-  // P1 (Fogo) - WASD
+  // P1 (Fogo) - Teclas W, A, D
   if (keys['KeyA']) player1.vx = -player1.speed;
   else if (keys['KeyD']) player1.vx = player1.speed;
   else player1.vx = 0;
@@ -123,7 +123,7 @@ function updateControls() {
     player1.grounded = false;
   }
 
-  // P2 (Água) - Setas
+  // P2 (Água) - Setas Direcionais
   if (keys['ArrowLeft']) player2.vx = -player2.speed;
   else if (keys['ArrowRight']) player2.vx = player2.speed;
   else player2.vx = 0;
@@ -195,8 +195,10 @@ function checkWin() {
 function gameLoop() {
   const currentFase = fases[faseAtual];
 
-  // Atualiza o fundo da canvas com o gradiente da fase atual
-  canvas.style.background = currentFase.bg;
+  // Atualiza a imagem de fundo em tela cheia na transição de fases
+  if (currentFase.bgImage) {
+    document.body.style.backgroundImage = currentFase.bgImage;
+  }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -221,7 +223,7 @@ function gameLoop() {
     ctx.fillRect(h.x, h.y, h.w, h.h);
   }
 
-  // Desenha as Portas
+  // Desenha as Portas de saída
   ctx.fillStyle = '#ff4757';
   ctx.fillRect(currentFase.doors.p1.x, currentFase.doors.p1.y, currentFase.doors.p1.w, currentFase.doors.p1.h);
   ctx.fillStyle = '#1e90ff';
