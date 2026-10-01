@@ -3,17 +3,17 @@ const ctx = canvas.getContext('2d');
 
 let faseAtual = 0;
 
-// Definindo os 2 espíritos da floresta (Fogo Místico e Água Mística)
+// Pulo fortalecido (jump: -12) e velocidade aumentada (speed: 5) para alcançar todas as plataformas
 const player1 = { 
   x: 50, y: 500, width: 26, height: 36, 
   color: '#ff5252', eyeColor: '#fff', vx: 0, vy: 0, 
-  speed: 4, jump: -10, grounded: false, element: 'fire' 
+  speed: 5, jump: -12, grounded: false, element: 'fire' 
 };
 
 const player2 = { 
   x: 90, y: 500, width: 26, height: 36, 
   color: '#448aff', eyeColor: '#fff', vx: 0, vy: 0, 
-  speed: 4, jump: -10, grounded: false, element: 'water' 
+  speed: 5, jump: -12, grounded: false, element: 'water' 
 };
 
 const gravity = 0.5;
@@ -22,69 +22,69 @@ const keys = {};
 window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
-// 5 Fases integradas com a estética da floresta
+// 5 FASES com distâncias de salto testadas e alcançáveis
 const fases = [
   {
     bgImage: 'url("img/fundo.jpg")',
     platforms: [
       { x: 0, y: 560, w: 800, h: 40, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 200, y: 440, w: 400, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 100, y: 320, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 500, y: 320, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 300, y: 200, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' }
+      { x: 300, y: 470, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' }, // Degrau intermediário
+      { x: 100, y: 360, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
+      { x: 500, y: 360, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
+      { x: 300, y: 240, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' }
     ],
     hazards: [
       { x: 350, y: 550, w: 100, h: 10, type: 'fire', color: '#ff5252' },
-      { x: 250, y: 430, w: 80, h: 10, type: 'water', color: '#448aff' }
+      { x: 350, y: 460, w: 80, h: 10, type: 'water', color: '#448aff' }
     ],
-    doors: { p1: { x: 350, y: 140, w: 32, h: 60 }, p2: { x: 420, y: 140, w: 32, h: 60 } }
+    doors: { p1: { x: 350, y: 180, w: 32, h: 60 }, p2: { x: 420, y: 180, w: 32, h: 60 } }
   },
   {
     bgImage: 'url("img/outro fundo.jpeg")',
     platforms: [
       { x: 0, y: 560, w: 800, h: 40, color: '#2c3e50', topColor: '#16a085' },
-      { x: 150, y: 450, w: 150, h: 20, color: '#2c3e50', topColor: '#16a085' },
-      { x: 500, y: 450, w: 150, h: 20, color: '#2c3e50', topColor: '#16a085' },
-      { x: 325, y: 330, w: 150, h: 20, color: '#2c3e50', topColor: '#16a085' },
-      { x: 100, y: 200, w: 600, h: 20, color: '#2c3e50', topColor: '#16a085' }
+      { x: 150, y: 460, w: 150, h: 20, color: '#2c3e50', topColor: '#16a085' },
+      { x: 500, y: 460, w: 150, h: 20, color: '#2c3e50', topColor: '#16a085' },
+      { x: 325, y: 350, w: 150, h: 20, color: '#2c3e50', topColor: '#16a085' },
+      { x: 100, y: 240, w: 600, h: 20, color: '#2c3e50', topColor: '#16a085' }
     ],
     hazards: [
       { x: 200, y: 550, w: 400, h: 10, type: 'toxic', color: '#69f0ae' },
-      { x: 200, y: 440, w: 50, h: 10, type: 'fire', color: '#ff5252' }
+      { x: 200, y: 450, w: 50, h: 10, type: 'fire', color: '#ff5252' }
     ],
-    doors: { p1: { x: 150, y: 140, w: 32, h: 60 }, p2: { x: 620, y: 140, w: 32, h: 60 } }
+    doors: { p1: { x: 150, y: 180, w: 32, h: 60 }, p2: { x: 620, y: 180, w: 32, h: 60 } }
   },
   {
     bgImage: 'url("img/fundo.jpg")',
     platforms: [
       { x: 0, y: 560, w: 200, h: 40, color: '#3d271d', topColor: '#2d6a4f' },
       { x: 600, y: 560, w: 200, h: 40, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 250, y: 450, w: 300, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 100, y: 320, w: 150, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 550, y: 320, w: 150, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 300, y: 180, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' }
+      { x: 250, y: 460, w: 300, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
+      { x: 100, y: 350, w: 180, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
+      { x: 520, y: 350, w: 180, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
+      { x: 300, y: 230, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' }
     ],
     hazards: [
       { x: 200, y: 580, w: 400, h: 20, type: 'fire', color: '#ff5252' },
-      { x: 300, y: 440, w: 200, h: 10, type: 'fire', color: '#ff5252' },
-      { x: 130, y: 310, w: 50, h: 10, type: 'water', color: '#448aff' }
+      { x: 300, y: 450, w: 200, h: 10, type: 'fire', color: '#ff5252' },
+      { x: 130, y: 340, w: 50, h: 10, type: 'water', color: '#448aff' }
     ],
-    doors: { p1: { x: 340, y: 120, w: 32, h: 60 }, p2: { x: 420, y: 120, w: 32, h: 60 } }
+    doors: { p1: { x: 340, y: 170, w: 32, h: 60 }, p2: { x: 420, y: 170, w: 32, h: 60 } }
   },
   {
     bgImage: 'url("img/outro fundo.jpeg")',
     platforms: [
       { x: 0, y: 560, w: 800, h: 40, color: '#2c3e50', topColor: '#16a085' },
-      { x: 50, y: 420, w: 200, h: 20, color: '#2c3e50', topColor: '#16a085' },
-      { x: 550, y: 420, w: 200, h: 20, color: '#2c3e50', topColor: '#16a085' },
-      { x: 300, y: 300, w: 200, h: 20, color: '#2c3e50', topColor: '#16a085' },
-      { x: 100, y: 180, w: 600, h: 20, color: '#2c3e50', topColor: '#16a085' }
+      { x: 50, y: 450, w: 200, h: 20, color: '#2c3e50', topColor: '#16a085' },
+      { x: 550, y: 450, w: 200, h: 20, color: '#2c3e50', topColor: '#16a085' },
+      { x: 300, y: 340, w: 200, h: 20, color: '#2c3e50', topColor: '#16a085' },
+      { x: 100, y: 220, w: 600, h: 20, color: '#2c3e50', topColor: '#16a085' }
     ],
     hazards: [
       { x: 100, y: 550, w: 600, h: 10, type: 'water', color: '#448aff' },
-      { x: 350, y: 290, w: 100, h: 10, type: 'toxic', color: '#69f0ae' }
+      { x: 350, y: 330, w: 100, h: 10, type: 'toxic', color: '#69f0ae' }
     ],
-    doors: { p1: { x: 120, y: 120, w: 32, h: 60 }, p2: { x: 650, y: 120, w: 32, h: 60 } }
+    doors: { p1: { x: 120, y: 160, w: 32, h: 60 }, p2: { x: 650, y: 160, w: 32, h: 60 } }
   },
   {
     bgImage: 'url("img/fundo.jpg")',
@@ -93,15 +93,15 @@ const fases = [
       { x: 650, y: 560, w: 150, h: 40, color: '#3d271d', topColor: '#2d6a4f' },
       { x: 200, y: 460, w: 120, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
       { x: 480, y: 460, w: 120, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 340, y: 340, w: 120, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 100, y: 220, w: 600, h: 20, color: '#3d271d', topColor: '#2d6a4f' }
+      { x: 340, y: 350, w: 120, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
+      { x: 100, y: 230, w: 600, h: 20, color: '#3d271d', topColor: '#2d6a4f' }
     ],
     hazards: [
       { x: 150, y: 580, w: 500, h: 20, type: 'toxic', color: '#69f0ae' },
       { x: 220, y: 450, w: 80, h: 10, type: 'fire', color: '#ff5252' },
       { x: 500, y: 450, w: 80, h: 10, type: 'water', color: '#448aff' }
     ],
-    doors: { p1: { x: 360, y: 160, w: 32, h: 60 }, p2: { x: 410, y: 160, w: 32, h: 60 } }
+    doors: { p1: { x: 360, y: 170, w: 32, h: 60 }, p2: { x: 410, y: 170, w: 32, h: 60 } }
   }
 ];
 
@@ -188,28 +188,23 @@ function checkWin() {
   }
 }
 
-// Função para desenhar as personagens (Espíritos da Floresta)
 function drawPlayer(p) {
-  // Corpo arredondado
   ctx.fillStyle = p.color;
   ctx.beginPath();
   ctx.roundRect(p.x, p.y, p.width, p.height, [8]);
   ctx.fill();
 
-  // Olhos cintilantes
   ctx.fillStyle = p.eyeColor;
   let eyeOffset = p.vx < 0 ? 3 : (p.vx > 0 ? 12 : 7);
   ctx.fillRect(p.x + eyeOffset, p.y + 10, 4, 6);
   ctx.fillRect(p.x + eyeOffset + 8, p.y + 10, 4, 6);
 
-  // Detalhes elementares no topo da cabeça
   ctx.fillStyle = p.element === 'fire' ? '#ff9800' : '#80d8ff';
   ctx.beginPath();
   ctx.arc(p.x + p.width / 2, p.y + 4, 4, 0, Math.PI * 2);
   ctx.fill();
 }
 
-// Função para desenhar portais mágicos de saída
 function drawDoor(door, color, symbol) {
   ctx.fillStyle = '#2d3436';
   ctx.fillRect(door.x, door.y, door.w, door.h);
@@ -241,27 +236,22 @@ function gameLoop() {
 
   checkWin();
 
-  // Desenhar Plataformas com efeito de relva/madeira
   for (let plat of currentFase.platforms) {
     ctx.fillStyle = plat.color;
     ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
     
-    // Cobertura superior (relva/topo)
     ctx.fillStyle = plat.topColor;
     ctx.fillRect(plat.x, plat.y, plat.w, 4);
   }
 
-  // Desenhar Obstáculos
   for (let h of currentFase.hazards) {
     ctx.fillStyle = h.color;
     ctx.fillRect(h.x, h.y, h.w, h.h);
   }
 
-  // Desenhar Portais
   drawDoor(currentFase.doors.p1, '#ff5252', '🔥');
   drawDoor(currentFase.doors.p2, '#448aff', '💧');
 
-  // Desenhar Personagens
   drawPlayer(player1);
   drawPlayer(player2);
 
