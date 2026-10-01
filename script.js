@@ -3,16 +3,18 @@ const ctx = canvas.getContext('2d');
 
 let faseAtual = 0;
 
-// Pulo fortalecido (jump: -12) e velocidade aumentada (speed: 5) para alcançar todas as plataformas
+// Jogador 1 (Fogo Vívido) e Jogador 2 (Água Cristalina)
 const player1 = { 
-  x: 50, y: 500, width: 26, height: 36, 
-  color: '#ff5252', eyeColor: '#fff', vx: 0, vy: 0, 
+  x: 50, y: 500, width: 28, height: 38, 
+  colorMain: '#ff3d00', colorSecondary: '#ff9100', glowColor: 'rgba(255, 61, 0, 0.6)',
+  eyeColor: '#ffffff', vx: 0, vy: 0, 
   speed: 5, jump: -12, grounded: false, element: 'fire' 
 };
 
 const player2 = { 
-  x: 90, y: 500, width: 26, height: 36, 
-  color: '#448aff', eyeColor: '#fff', vx: 0, vy: 0, 
+  x: 90, y: 500, width: 28, height: 38, 
+  colorMain: '#00e5ff', colorSecondary: '#2979ff', glowColor: 'rgba(0, 229, 255, 0.6)',
+  eyeColor: '#ffffff', vx: 0, vy: 0, 
   speed: 5, jump: -12, grounded: false, element: 'water' 
 };
 
@@ -22,20 +24,20 @@ const keys = {};
 window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
-// 5 FASES com distâncias de salto testadas e alcançáveis
+// 5 Fases ajustadas
 const fases = [
   {
     bgImage: 'url("img/fundo.jpg")',
     platforms: [
       { x: 0, y: 560, w: 800, h: 40, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 300, y: 470, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' }, // Degrau intermediário
+      { x: 300, y: 470, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
       { x: 100, y: 360, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
       { x: 500, y: 360, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
       { x: 300, y: 240, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' }
     ],
     hazards: [
-      { x: 350, y: 550, w: 100, h: 10, type: 'fire', color: '#ff5252' },
-      { x: 350, y: 460, w: 80, h: 10, type: 'water', color: '#448aff' }
+      { x: 350, y: 550, w: 100, h: 10, type: 'fire', color: '#ff3d00' },
+      { x: 350, y: 460, w: 80, h: 10, type: 'water', color: '#00e5ff' }
     ],
     doors: { p1: { x: 350, y: 180, w: 32, h: 60 }, p2: { x: 420, y: 180, w: 32, h: 60 } }
   },
@@ -49,8 +51,8 @@ const fases = [
       { x: 100, y: 240, w: 600, h: 20, color: '#2c3e50', topColor: '#16a085' }
     ],
     hazards: [
-      { x: 200, y: 550, w: 400, h: 10, type: 'toxic', color: '#69f0ae' },
-      { x: 200, y: 450, w: 50, h: 10, type: 'fire', color: '#ff5252' }
+      { x: 200, y: 550, w: 400, h: 10, type: 'toxic', color: '#00e676' },
+      { x: 200, y: 450, w: 50, h: 10, type: 'fire', color: '#ff3d00' }
     ],
     doors: { p1: { x: 150, y: 180, w: 32, h: 60 }, p2: { x: 620, y: 180, w: 32, h: 60 } }
   },
@@ -65,9 +67,9 @@ const fases = [
       { x: 300, y: 230, w: 200, h: 20, color: '#3d271d', topColor: '#2d6a4f' }
     ],
     hazards: [
-      { x: 200, y: 580, w: 400, h: 20, type: 'fire', color: '#ff5252' },
-      { x: 300, y: 450, w: 200, h: 10, type: 'fire', color: '#ff5252' },
-      { x: 130, y: 340, w: 50, h: 10, type: 'water', color: '#448aff' }
+      { x: 200, y: 580, w: 400, h: 20, type: 'fire', color: '#ff3d00' },
+      { x: 300, y: 450, w: 200, h: 10, type: 'fire', color: '#ff3d00' },
+      { x: 130, y: 340, w: 50, h: 10, type: 'water', color: '#00e5ff' }
     ],
     doors: { p1: { x: 340, y: 170, w: 32, h: 60 }, p2: { x: 420, y: 170, w: 32, h: 60 } }
   },
@@ -81,8 +83,8 @@ const fases = [
       { x: 100, y: 220, w: 600, h: 20, color: '#2c3e50', topColor: '#16a085' }
     ],
     hazards: [
-      { x: 100, y: 550, w: 600, h: 10, type: 'water', color: '#448aff' },
-      { x: 350, y: 330, w: 100, h: 10, type: 'toxic', color: '#69f0ae' }
+      { x: 100, y: 550, w: 600, h: 10, type: 'water', color: '#00e5ff' },
+      { x: 350, y: 330, w: 100, h: 10, type: 'toxic', color: '#00e676' }
     ],
     doors: { p1: { x: 120, y: 160, w: 32, h: 60 }, p2: { x: 650, y: 160, w: 32, h: 60 } }
   },
@@ -97,9 +99,9 @@ const fases = [
       { x: 100, y: 230, w: 600, h: 20, color: '#3d271d', topColor: '#2d6a4f' }
     ],
     hazards: [
-      { x: 150, y: 580, w: 500, h: 20, type: 'toxic', color: '#69f0ae' },
-      { x: 220, y: 450, w: 80, h: 10, type: 'fire', color: '#ff5252' },
-      { x: 500, y: 450, w: 80, h: 10, type: 'water', color: '#448aff' }
+      { x: 150, y: 580, w: 500, h: 20, type: 'toxic', color: '#00e676' },
+      { x: 220, y: 450, w: 80, h: 10, type: 'fire', color: '#ff3d00' },
+      { x: 500, y: 450, w: 80, h: 10, type: 'water', color: '#00e5ff' }
     ],
     doors: { p1: { x: 360, y: 170, w: 32, h: 60 }, p2: { x: 410, y: 170, w: 32, h: 60 } }
   }
@@ -188,25 +190,56 @@ function checkWin() {
   }
 }
 
+// Desenhar os Personagens melhorados
 function drawPlayer(p) {
-  ctx.fillStyle = p.color;
+  ctx.save();
+
+  // Efeito de brilho místico (Glow)
+  ctx.shadowColor = p.glowColor;
+  ctx.shadowBlur = 12;
+
+  // Gradiente do corpo
+  let grad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.height);
+  grad.addColorStop(0, p.colorSecondary);
+  grad.addColorStop(1, p.colorMain);
+
+  ctx.fillStyle = grad;
   ctx.beginPath();
-  ctx.roundRect(p.x, p.y, p.width, p.height, [8]);
+  ctx.roundRect(p.x, p.y, p.width, p.height, [12, 12, 6, 6]);
   ctx.fill();
 
+  // Olhos brilhantes com direção da caminhada
+  ctx.shadowBlur = 0;
   ctx.fillStyle = p.eyeColor;
-  let eyeOffset = p.vx < 0 ? 3 : (p.vx > 0 ? 12 : 7);
-  ctx.fillRect(p.x + eyeOffset, p.y + 10, 4, 6);
-  ctx.fillRect(p.x + eyeOffset + 8, p.y + 10, 4, 6);
-
-  ctx.fillStyle = p.element === 'fire' ? '#ff9800' : '#80d8ff';
+  let eyeOffset = p.vx < 0 ? 3 : (p.vx > 0 ? 13 : 8);
+  
   ctx.beginPath();
-  ctx.arc(p.x + p.width / 2, p.y + 4, 4, 0, Math.PI * 2);
+  ctx.arc(p.x + eyeOffset, p.y + 12, 2.5, 0, Math.PI * 2);
+  ctx.arc(p.x + eyeOffset + 8, p.y + 12, 2.5, 0, Math.PI * 2);
   ctx.fill();
+
+  // Detalhe elementar na cabeça (Chama ou Gota)
+  ctx.fillStyle = p.colorSecondary;
+  ctx.beginPath();
+  if (p.element === 'fire') {
+    // Chama
+    ctx.moveTo(p.x + p.width / 2, p.y - 6);
+    ctx.quadraticCurveTo(p.x + p.width / 2 + 6, p.y + 2, p.x + p.width / 2 - 6, p.y + 2);
+  } else {
+    // Gota de água
+    ctx.arc(p.x + p.width / 2, p.y - 2, 4, 0, Math.PI * 2);
+  }
+  ctx.fill();
+
+  ctx.restore();
 }
 
 function drawDoor(door, color, symbol) {
-  ctx.fillStyle = '#2d3436';
+  ctx.save();
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8;
+
+  ctx.fillStyle = '#1e272e';
   ctx.fillRect(door.x, door.y, door.w, door.h);
 
   ctx.strokeStyle = color;
@@ -216,6 +249,7 @@ function drawDoor(door, color, symbol) {
   ctx.fillStyle = color;
   ctx.font = '16px sans-serif';
   ctx.fillText(symbol, door.x + 8, door.y + 35);
+  ctx.restore();
 }
 
 function gameLoop() {
@@ -236,6 +270,7 @@ function gameLoop() {
 
   checkWin();
 
+  // Plataformas
   for (let plat of currentFase.platforms) {
     ctx.fillStyle = plat.color;
     ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
@@ -244,14 +279,21 @@ function gameLoop() {
     ctx.fillRect(plat.x, plat.y, plat.w, 4);
   }
 
+  // Obstáculos
   for (let h of currentFase.hazards) {
+    ctx.save();
+    ctx.shadowColor = h.color;
+    ctx.shadowBlur = 6;
     ctx.fillStyle = h.color;
     ctx.fillRect(h.x, h.y, h.w, h.h);
+    ctx.restore();
   }
 
-  drawDoor(currentFase.doors.p1, '#ff5252', '🔥');
-  drawDoor(currentFase.doors.p2, '#448aff', '💧');
+  // Portais de saída
+  drawDoor(currentFase.doors.p1, '#ff3d00', '🔥');
+  drawDoor(currentFase.doors.p2, '#00e5ff', '💧');
 
+  // Desenhar personagens
   drawPlayer(player1);
   drawPlayer(player2);
 
