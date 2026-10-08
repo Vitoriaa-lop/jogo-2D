@@ -3,21 +3,28 @@ const ctx = canvas.getContext('2d');
 
 let faseAtual = 0;
 
-// Jogador 1 (Fantasma Verde) e Jogador 2 (Fantasma Roxo)
+// Carregar Imagens dos Personagens com os nomes corretos (.jpeg)
+const imgPlayer1 = new Image();
+imgPlayer1.src = 'img/personagem verde.jpeg';
+
+const imgPlayer2 = new Image();
+imgPlayer2.src = 'img/personagem roxo.jpeg';
+
+// Jogador 1 (Verde) e Jogador 2 (Roxo)
 const player1 = { 
-  x: 50, y: 480, width: 32, height: 42, 
-  color: '#2ed573', eyeColor: '#ffffff',
-  glowColor: 'rgba(46, 213, 115, 0.7)',
+  x: 50, y: 480, width: 40, height: 50, 
+  glowColor: 'rgba(46, 213, 115, 0.8)',
   vx: 0, vy: 0, 
-  speed: 5, jump: -12, grounded: false, element: 'green'
+  speed: 5, jump: -12, grounded: false, element: 'green',
+  img: imgPlayer1
 };
 
 const player2 = { 
-  x: 100, y: 480, width: 32, height: 42, 
-  color: '#9b59b6', eyeColor: '#ffffff',
-  glowColor: 'rgba(155, 89, 182, 0.7)',
+  x: 100, y: 480, width: 40, height: 50, 
+  glowColor: 'rgba(155, 89, 182, 0.8)',
   vx: 0, vy: 0, 
-  speed: 5, jump: -12, grounded: false, element: 'purple'
+  speed: 5, jump: -12, grounded: false, element: 'purple',
+  img: imgPlayer2
 };
 
 const gravity = 0.5;
@@ -190,37 +197,22 @@ function checkWin() {
   }
 }
 
-// Desenhar Fantasmas em Canvas (Sem Fundo)
+// Desenhar as imagens dos personagens na tela
 function drawPlayer(p) {
+  if (!p.img.complete) return;
+
   ctx.save();
   ctx.shadowColor = p.glowColor;
-  ctx.shadowBlur = 12;
+  ctx.shadowBlur = 10;
 
-  // Corpo do Fantasma
-  ctx.fillStyle = p.color;
-  ctx.beginPath();
-  ctx.arc(p.x + p.width / 2, p.y + 16, p.width / 2, Math.PI, 0, false);
-  ctx.fillRect(p.x, p.y + 16, p.width, p.height - 24);
-
-  // Ondas na parte inferior
-  ctx.lineTo(p.x + p.width, p.y + p.height);
-  ctx.lineTo(p.x + (p.width * 0.75), p.y + p.height - 6);
-  ctx.lineTo(p.x + (p.width * 0.5), p.y + p.height);
-  ctx.lineTo(p.x + (p.width * 0.25), p.y + p.height - 6);
-  ctx.lineTo(p.x, p.y + p.height);
-  ctx.closePath();
-  ctx.fill();
-
-  // Olhos
-  ctx.fillStyle = p.eyeColor;
-  const eyeOffset = p.vx < 0 ? -3 : (p.vx > 0 ? 3 : 0);
-  ctx.fillRect(p.x + 8 + eyeOffset, p.y + 12, 6, 8);
-  ctx.fillRect(p.x + 18 + eyeOffset, p.y + 12, 6, 8);
-
-  // Pupilas
-  ctx.fillStyle = '#000000';
-  ctx.fillRect(p.x + 10 + eyeOffset, p.y + 14, 3, 4);
-  ctx.fillRect(p.x + 20 + eyeOffset, p.y + 14, 3, 4);
+  // Inverte a imagem ao caminhar para a esquerda
+  if (p.vx < 0) {
+    ctx.translate(p.x + p.width, p.y);
+    ctx.scale(-1, 1);
+    ctx.drawImage(p.img, 0, 0, p.width, p.height);
+  } else {
+    ctx.drawImage(p.img, p.x, p.y, p.width, p.height);
+  }
 
   ctx.restore();
 }
@@ -280,11 +272,11 @@ function gameLoop() {
     ctx.restore();
   }
 
-  // Portais
+  // Portais de saída
   drawDoor(currentFase.doors.p1, '#2ed573', '🍃');
   drawDoor(currentFase.doors.p2, '#9b59b6', '🔮');
 
-  // Desenhar Fantasmas
+  // Desenhar os teus personagens
   drawPlayer(player1);
   drawPlayer(player2);
 
