@@ -24,7 +24,7 @@ const keys = {};
 window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
-// 5 Fases do Jogo
+// Fases do Jogo
 const fases = [
   {
     bgImage: 'url("img/fundo.jpg")',
@@ -42,17 +42,17 @@ const fases = [
     doors: { p1: { x: 350, y: 180, w: 32, h: 60 }, p2: { x: 420, y: 180, w: 32, h: 60 } }
   },
   {
-    bgImage: 'url("img/outro fundo.jpeg")',
+    bgImage: 'url("img/fundo da faze doiss.jpeg")',
     platforms: [
-      { x: 0, y: 560, w: 800, h: 40, color: '#2c3e50', topColor: '#16a085' },
-      { x: 150, y: 460, w: 150, h: 20, color: '#2c3e50', topColor: '#16a085' },
-      { x: 500, y: 460, w: 150, h: 20, color: '#2c3e50', topColor: '#16a085' },
-      { x: 325, y: 350, w: 150, h: 20, color: '#2c3e50', topColor: '#16a085' },
-      { x: 100, y: 240, w: 600, h: 20, color: '#2c3e50', topColor: '#16a085' }
+      { x: 0, y: 560, w: 800, h: 40, color: '#2b3a24', topColor: '#4d7c38' },
+      { x: 150, y: 460, w: 160, h: 20, color: '#2b3a24', topColor: '#4d7c38' },
+      { x: 490, y: 460, w: 160, h: 20, color: '#2b3a24', topColor: '#4d7c38' },
+      { x: 320, y: 350, w: 160, h: 20, color: '#2b3a24', topColor: '#4d7c38' },
+      { x: 100, y: 240, w: 600, h: 20, color: '#2b3a24', topColor: '#4d7c38' }
     ],
     hazards: [
       { x: 200, y: 550, w: 400, h: 10, type: 'toxic', color: '#ff4757' },
-      { x: 200, y: 450, w: 50, h: 10, type: 'green', color: '#2ed573' }
+      { x: 200, y: 450, w: 60, h: 10, type: 'green', color: '#2ed573' }
     ],
     doors: { p1: { x: 150, y: 180, w: 32, h: 60 }, p2: { x: 620, y: 180, w: 32, h: 60 } }
   },
@@ -74,13 +74,13 @@ const fases = [
     doors: { p1: { x: 340, y: 170, w: 32, h: 60 }, p2: { x: 420, y: 170, w: 32, h: 60 } }
   },
   {
-    bgImage: 'url("img/outro fundo.jpeg")',
+    bgImage: 'url("img/fundo da faze doiss.jpeg")',
     platforms: [
-      { x: 0, y: 560, w: 800, h: 40, color: '#2c3e50', topColor: '#16a085' },
-      { x: 50, y: 450, w: 200, h: 20, color: '#2c3e50', topColor: '#16a085' },
-      { x: 550, y: 450, w: 200, h: 20, color: '#2c3e50', topColor: '#16a085' },
-      { x: 300, y: 340, w: 200, h: 20, color: '#2c3e50', topColor: '#16a085' },
-      { x: 100, y: 220, w: 600, h: 20, color: '#2c3e50', topColor: '#16a085' }
+      { x: 0, y: 560, w: 800, h: 40, color: '#2b3a24', topColor: '#4d7c38' },
+      { x: 50, y: 450, w: 200, h: 20, color: '#2b3a24', topColor: '#4d7c38' },
+      { x: 550, y: 450, w: 200, h: 20, color: '#2b3a24', topColor: '#4d7c38' },
+      { x: 300, y: 340, w: 200, h: 20, color: '#2b3a24', topColor: '#4d7c38' },
+      { x: 100, y: 220, w: 600, h: 20, color: '#2b3a24', topColor: '#4d7c38' }
     ],
     hazards: [
       { x: 100, y: 550, w: 600, h: 10, type: 'purple', color: '#9b59b6' },
@@ -207,11 +207,11 @@ function drawPlayer(p) {
   const bottomY = p.y + p.height - 6;
 
   ctx.beginPath();
-  // Cabeça (arco superior)
+  // Cabeça
   ctx.arc(p.x + radius, p.y + radius, radius, Math.PI, 0, false);
   // Lado direito
   ctx.lineTo(p.x + p.width, bottomY);
-  // Ondas na parte inferior do fantasma
+  // Ondas na parte inferior
   ctx.quadraticCurveTo(p.x + p.width * 0.83, p.y + p.height, p.x + p.width * 0.66, bottomY);
   ctx.quadraticCurveTo(p.x + p.width * 0.5, p.y + p.height - 10, p.x + p.width * 0.33, bottomY);
   ctx.quadraticCurveTo(p.x + p.width * 0.17, p.y + p.height, p.x, bottomY);
@@ -220,7 +220,7 @@ function drawPlayer(p) {
   ctx.closePath();
   ctx.fill();
 
-  // Olhos expressivos do fantasma
+  // Olhos expressivos
   ctx.shadowBlur = 0;
 
   let eyeOffsetX = p.vx < 0 ? -2 : (p.vx > 0 ? 2 : 0);
@@ -232,7 +232,7 @@ function drawPlayer(p) {
   ctx.ellipse(p.x + 19 + eyeOffsetX, p.y + 14, 4, 5, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Pupilas do fantasma
+  // Pupilas
   ctx.fillStyle = p.pupilColor;
   ctx.beginPath();
   ctx.arc(p.x + 9 + eyeOffsetX + (p.vx < 0 ? -1 : p.vx > 0 ? 1 : 0), p.y + 14, 2, 0, Math.PI * 2);
@@ -301,7 +301,7 @@ function gameLoop() {
   drawDoor(currentFase.doors.p1, '#2ed573', '🍃');
   drawDoor(currentFase.doors.p2, '#9b59b6', '🔮');
 
-  // Desenhar personagens fantasmas
+  // Desenhar personagens
   drawPlayer(player1);
   drawPlayer(player2);
 
