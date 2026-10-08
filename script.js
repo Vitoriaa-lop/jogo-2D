@@ -3,29 +3,21 @@ const ctx = canvas.getContext('2d');
 
 let faseAtual = 0;
 
-// Carregar Imagens dos Personagens
-const imgPlayer1 = new Image();
-imgPlayer1.src = 'img/personagem verde.jpeg';
-
-const imgPlayer2 = new Image();
-imgPlayer2.src = 'img/personagem roxo.jpeg';
-
 // Jogador 1 (Fantasma Verde) e Jogador 2 (Fantasma Roxo)
-// Aumentamos a largura/altura para a proporção correta
 const player1 = { 
-  x: 50, y: 480, width: 45, height: 55, 
-  glowColor: 'rgba(46, 213, 115, 0.4)',
+  x: 50, y: 480, width: 32, height: 42, 
+  color: '#2ed573', eyeColor: '#ffffff',
+  glowColor: 'rgba(46, 213, 115, 0.7)',
   vx: 0, vy: 0, 
-  speed: 5, jump: -12, grounded: false, element: 'green',
-  img: imgPlayer1
+  speed: 5, jump: -12, grounded: false, element: 'green'
 };
 
 const player2 = { 
-  x: 100, y: 480, width: 45, height: 55, 
-  glowColor: 'rgba(142, 68, 173, 0.4)',
+  x: 100, y: 480, width: 32, height: 42, 
+  color: '#9b59b6', eyeColor: '#ffffff',
+  glowColor: 'rgba(155, 89, 182, 0.7)',
   vx: 0, vy: 0, 
-  speed: 5, jump: -12, grounded: false, element: 'purple',
-  img: imgPlayer2
+  speed: 5, jump: -12, grounded: false, element: 'purple'
 };
 
 const gravity = 0.5;
@@ -198,22 +190,37 @@ function checkWin() {
   }
 }
 
-// Desenhar o Personagem ajustado
+// Desenhar Fantasmas em Canvas (Sem Fundo)
 function drawPlayer(p) {
-  if (!p.img.complete) return; // Espera a imagem carregar
-
   ctx.save();
   ctx.shadowColor = p.glowColor;
-  ctx.shadowBlur = 8;
+  ctx.shadowBlur = 12;
 
-  // Inverter direção se o personagem andar para a esquerda
-  if (p.vx < 0) {
-    ctx.translate(p.x + p.width, p.y);
-    ctx.scale(-1, 1);
-    ctx.drawImage(p.img, 0, 0, p.width, p.height);
-  } else {
-    ctx.drawImage(p.img, p.x, p.y, p.width, p.height);
-  }
+  // Corpo do Fantasma
+  ctx.fillStyle = p.color;
+  ctx.beginPath();
+  ctx.arc(p.x + p.width / 2, p.y + 16, p.width / 2, Math.PI, 0, false);
+  ctx.fillRect(p.x, p.y + 16, p.width, p.height - 24);
+
+  // Ondas na parte inferior
+  ctx.lineTo(p.x + p.width, p.y + p.height);
+  ctx.lineTo(p.x + (p.width * 0.75), p.y + p.height - 6);
+  ctx.lineTo(p.x + (p.width * 0.5), p.y + p.height);
+  ctx.lineTo(p.x + (p.width * 0.25), p.y + p.height - 6);
+  ctx.lineTo(p.x, p.y + p.height);
+  ctx.closePath();
+  ctx.fill();
+
+  // Olhos
+  ctx.fillStyle = p.eyeColor;
+  const eyeOffset = p.vx < 0 ? -3 : (p.vx > 0 ? 3 : 0);
+  ctx.fillRect(p.x + 8 + eyeOffset, p.y + 12, 6, 8);
+  ctx.fillRect(p.x + 18 + eyeOffset, p.y + 12, 6, 8);
+
+  // Pupilas
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(p.x + 10 + eyeOffset, p.y + 14, 3, 4);
+  ctx.fillRect(p.x + 20 + eyeOffset, p.y + 14, 3, 4);
 
   ctx.restore();
 }
@@ -273,11 +280,11 @@ function gameLoop() {
     ctx.restore();
   }
 
-  // Portais de saída
+  // Portais
   drawDoor(currentFase.doors.p1, '#2ed573', '🍃');
   drawDoor(currentFase.doors.p2, '#9b59b6', '🔮');
 
-  // Desenhar personagens
+  // Desenhar Fantasmas
   drawPlayer(player1);
   drawPlayer(player2);
 
