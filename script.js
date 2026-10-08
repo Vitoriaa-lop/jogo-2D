@@ -11,17 +11,18 @@ const imgPlayer2 = new Image();
 imgPlayer2.src = 'img/personagem roxo.jpeg';
 
 // Jogador 1 (Fantasma Verde) e Jogador 2 (Fantasma Roxo)
+// Aumentamos a largura/altura para a proporção correta
 const player1 = { 
-  x: 50, y: 500, width: 40, height: 45, 
-  glowColor: 'rgba(46, 213, 115, 0.6)',
+  x: 50, y: 480, width: 45, height: 55, 
+  glowColor: 'rgba(46, 213, 115, 0.4)',
   vx: 0, vy: 0, 
   speed: 5, jump: -12, grounded: false, element: 'green',
   img: imgPlayer1
 };
 
 const player2 = { 
-  x: 90, y: 500, width: 40, height: 45, 
-  glowColor: 'rgba(142, 68, 173, 0.6)',
+  x: 100, y: 480, width: 45, height: 55, 
+  glowColor: 'rgba(142, 68, 173, 0.4)',
   vx: 0, vy: 0, 
   speed: 5, jump: -12, grounded: false, element: 'purple',
   img: imgPlayer2
@@ -118,7 +119,7 @@ const fases = [
 
 function resetPlayerPos() {
   player1.x = 50; player1.y = 480; player1.vx = 0; player1.vy = 0;
-  player2.x = 90; player2.y = 480; player2.vx = 0; player2.vy = 0;
+  player2.x = 100; player2.y = 480; player2.vx = 0; player2.vy = 0;
 }
 
 function updateControls() {
@@ -197,13 +198,15 @@ function checkWin() {
   }
 }
 
-// Desenhar o Personagem com a Imagem
+// Desenhar o Personagem ajustado
 function drawPlayer(p) {
+  if (!p.img.complete) return; // Espera a imagem carregar
+
   ctx.save();
   ctx.shadowColor = p.glowColor;
-  ctx.shadowBlur = 10;
+  ctx.shadowBlur = 8;
 
-  // Inverter o lado do personagem de acordo com a direção que ele anda
+  // Inverter direção se o personagem andar para a esquerda
   if (p.vx < 0) {
     ctx.translate(p.x + p.width, p.y);
     ctx.scale(-1, 1);
@@ -274,7 +277,7 @@ function gameLoop() {
   drawDoor(currentFase.doors.p1, '#2ed573', '🍃');
   drawDoor(currentFase.doors.p2, '#9b59b6', '🔮');
 
-  // Desenhar os personagens usando as imagens carregadas
+  // Desenhar personagens
   drawPlayer(player1);
   drawPlayer(player2);
 
