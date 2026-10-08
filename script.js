@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 
 let faseAtual = 0;
 
-// Função melhorada para remover 100% do fundo xadrez/cinzento dos sprites
+// Função para remover 100% do fundo xadrez/cinzento dos sprites
 function removeImageBackground(img) {
   const tempCanvas = document.createElement('canvas');
   const tempCtx = tempCanvas.getContext('2d');
@@ -20,17 +20,15 @@ function removeImageBackground(img) {
     const g = data[i + 1];
     const b = data[i + 2];
 
-    // Detecta tons de cinza, preto e xadrez de fundo (pixels não coloridos)
     const maxDiff = Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(b - r));
     
-    // Se o pixel não for distintamente verde ou roxo/rosa, torna-o transparente
     const isGreenish = (g > r + 10 && g > b + 10);
     const isPurplish = (r > g + 10 && b > g + 10);
 
     if (!isGreenish && !isPurplish) {
-      data[i + 3] = 0; // Transparente
+      data[i + 3] = 0;
     } else if (maxDiff < 25 && (r < 180 && g < 180 && b < 180)) {
-      data[i + 3] = 0; // Transparente para cinzas
+      data[i + 3] = 0;
     }
   }
 
@@ -54,19 +52,21 @@ imgPlayer2.onload = () => {
   canvasP2 = removeImageBackground(imgPlayer2);
 };
 
-// Jogador 1 (Verde) e Jogador 2 (Roxo) - AUMENTADOS PARA 80x100
+// Jogadores com direção inicial 'right'
 const player1 = { 
   x: 50, y: 435, width: 80, height: 100, 
   glowColor: 'rgba(46, 213, 115, 0.8)',
   vx: 0, vy: 0, 
-  speed: 5, jump: -12, grounded: false, element: 'green'
+  speed: 5, jump: -12, grounded: false, element: 'green',
+  facing: 'right'
 };
 
 const player2 = { 
   x: 140, y: 435, width: 80, height: 100, 
   glowColor: 'rgba(155, 89, 182, 0.8)',
   vx: 0, vy: 0, 
-  speed: 5, jump: -12, grounded: false, element: 'purple'
+  speed: 5, jump: -12, grounded: false, element: 'purple',
+  facing: 'right'
 };
 
 const gravity = 0.5;
@@ -159,23 +159,37 @@ const fases = [
 ];
 
 function resetPlayerPos() {
-  player1.x = 50; player1.y = 435; player1.vx = 0; player1.vy = 0;
-  player2.x = 140; player2.y = 435; player2.vx = 0; player2.vy = 0;
+  player1.x = 50; player1.y = 435; player1.vx = 0; player1.vy = 0; player1.facing = 'right';
+  player2.x = 140; player2.y = 435; player2.vx = 0; player2.vy = 0; player2.facing = 'right';
 }
 
 function updateControls() {
-  if (keys['KeyA']) player1.vx = -player1.speed;
-  else if (keys['KeyD']) player1.vx = player1.speed;
-  else player1.vx = 0;
+  // Controle Player 1 (Verde)
+  if (keys['KeyA']) {
+    player1.vx = -player1.speed;
+    player1.facing = 'left';
+  } else if (keys['KeyD']) {
+    player1.vx = player1.speed;
+    player1.facing = 'right';
+  } else {
+    player1.vx = 0;
+  }
 
   if (keys['KeyW'] && player1.grounded) {
     player1.vy = player1.jump;
     player1.grounded = false;
   }
 
-  if (keys['ArrowLeft']) player2.vx = -player2.speed;
-  else if (keys['ArrowRight']) player2.vx = player2.speed;
-  else player2.vx = 0;
+  // Controle Player 2 (Roxo)
+  if (keys['ArrowLeft']) {
+    player2.vx = -player2.speed;
+    player2.facing = 'left';
+  } else if (keys['ArrowRight']) {
+    player2.vx = player2.speed;
+    player2.facing = 'right';
+  } else {
+    player2.vx = 0;
+  }
 
   if (keys['ArrowUp'] && player2.grounded) {
     player2.vy = player2.jump;
@@ -239,6 +253,7 @@ function checkWin() {
   }
 }
 
+// Desenhar o personagem virando para Esquerda ou Direita
 function drawPlayer(p, imgCanvas) {
   if (!imgCanvas) return;
 
@@ -246,7 +261,8 @@ function drawPlayer(p, imgCanvas) {
   ctx.shadowColor = p.glowColor;
   ctx.shadowBlur = 8;
 
-  if (p.vx < 0) {
+  // Se estiver virado para a esquerda, espelha a imagem original
+  if (p.facing === 'left') {
     ctx.translate(p.x + p.width, p.y);
     ctx.scale(-1, 1);
     ctx.drawImage(imgCanvas, 0, 0, p.width, p.height);
