@@ -3,28 +3,65 @@ const ctx = canvas.getContext('2d');
 
 let faseAtual = 0;
 
+// Função para remover o fundo cinzento/xadrez da imagem via código
+function removeImageBackground(img, threshold = 80) {
+  const tempCanvas = document.createElement('canvas');
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  tempCanvas.width = img.width;
+  tempCanvas.height = img.height;
+  
+  tempCtx.drawImage(img, 0, 0);
+  const imgData = tempCtx.getImageData(0, 0, img.width, img.height);
+  const data = imgData.data;
+
+  // Percorre pixel a pixel e remove cores escuras/cinzentas de fundo
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+
+    // Se for tom cinzento/preto (fundo xadrez escuro)
+    if (r < threshold && g < threshold && b < threshold) {
+      data[i + 3] = 0; // Torna transparente
+    } else if (Math.abs(r - g) < 20 && Math.abs(g - b) < 20 && r < 120) {
+      data[i + 3] = 0; // Torna tons cinzentos transparentes
+    }
+  }
+
+  tempCtx.putImageData(imgData, 0, 0);
+  return tempCanvas;
+}
+
+let canvasP1 = null;
+let canvasP2 = null;
+
 // Carregar Imagens dos Personagens (.jpeg)
 const imgPlayer1 = new Image();
 imgPlayer1.src = 'img/personagem verde.jpeg';
+imgPlayer1.onload = () => {
+  canvasP1 = removeImageBackground(imgPlayer1);
+};
 
 const imgPlayer2 = new Image();
 imgPlayer2.src = 'img/personagem roxo.jpeg';
+imgPlayer2.onload = () => {
+  canvasP2 = removeImageBackground(imgPlayer2);
+};
 
-// Jogador 1 (Verde) e Jogador 2 (Roxo) - TAMANHO AUMENTADO (60x75)
+// Jogador 1 (Verde) e Jogador 2 (Roxo) - Tamanho Maior (60x75)
 const player1 = { 
   x: 50, y: 460, width: 60, height: 75, 
   glowColor: 'rgba(46, 213, 115, 0.8)',
   vx: 0, vy: 0, 
-  speed: 5, jump: -12, grounded: false, element: 'green',
-  img: imgPlayer1
+  speed: 5, jump: -12, grounded: false, element: 'green'
 };
 
 const player2 = { 
   x: 120, y: 460, width: 60, height: 75, 
   glowColor: 'rgba(155, 89, 182, 0.8)',
   vx: 0, vy: 0, 
-  speed: 5, jump: -12, grounded: false, element: 'purple',
-  img: imgPlayer2
+  speed: 5, jump: -12, grounded: false, element: 'purple'
 };
 
 const gravity = 0.5;
@@ -197,21 +234,20 @@ function checkWin() {
   }
 }
 
-// Desenhar personagens removendo o fundo da imagem automaticamente
-function drawPlayer(p) {
-  if (!p.img.complete) return;
+// Desenhar o personagem limpo sem fundo
+function drawPlayer(p, imgCanvas) {
+  if (!imgCanvas) return;
 
   ctx.save();
-  
-  // Efeito 'multiply' para tirar fundo branco/claro do personagem
-  ctx.globalCompositeOperation = 'multiply';
+  ctx.shadowColor = p.glowColor;
+  ctx.shadowBlur = 10;
 
   if (p.vx < 0) {
     ctx.translate(p.x + p.width, p.y);
     ctx.scale(-1, 1);
-    ctx.drawImage(p.img, 0, 0, p.width, p.height);
+    ctx.drawImage(imgCanvas, 0, 0, p.width, p.height);
   } else {
-    ctx.drawImage(p.img, p.x, p.y, p.width, p.height);
+    ctx.drawImage(imgCanvas, p.x, p.y, p.width, p.height);
   }
 
   ctx.restore();
@@ -276,9 +312,9 @@ function gameLoop() {
   drawDoor(currentFase.doors.p1, '#2ed573', '🍃');
   drawDoor(currentFase.doors.p2, '#9b59b6', '🔮');
 
-  // Desenhar os personagens
-  drawPlayer(player1);
-  drawPlayer(player2);
+  // Desenhar os personagens sem o fundo escuro
+  drawPlayer(player1, canvasP1);
+  drawPlayer(player2, canvasP2);
 
   requestAnimationFrame(gameLoop);
 }
