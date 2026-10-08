@@ -24,7 +24,7 @@ const keys = {};
 window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
-// Fases do Jogo
+// Fases do Jogo com as imagens correspondentes
 const fases = [
   {
     bgImage: 'url("img/fundo.jpg")',
@@ -42,7 +42,7 @@ const fases = [
     doors: { p1: { x: 350, y: 180, w: 32, h: 60 }, p2: { x: 420, y: 180, w: 32, h: 60 } }
   },
   {
-    bgImage: 'url("img/fundo da faze doiss.jpeg")',
+    bgImage: 'url("img/fundo da fase doiss.jpeg")',
     platforms: [
       { x: 0, y: 560, w: 800, h: 40, color: '#2b3a24', topColor: '#4d7c38' },
       { x: 150, y: 460, w: 160, h: 20, color: '#2b3a24', topColor: '#4d7c38' },
@@ -57,7 +57,7 @@ const fases = [
     doors: { p1: { x: 150, y: 180, w: 32, h: 60 }, p2: { x: 620, y: 180, w: 32, h: 60 } }
   },
   {
-    bgImage: 'url("img/fundo.jpg")',
+    bgImage: 'url("img/funo da fase trê.jpeg")',
     platforms: [
       { x: 0, y: 560, w: 200, h: 40, color: '#3d271d', topColor: '#2d6a4f' },
       { x: 600, y: 560, w: 200, h: 40, color: '#3d271d', topColor: '#2d6a4f' },
@@ -74,7 +74,7 @@ const fases = [
     doors: { p1: { x: 340, y: 170, w: 32, h: 60 }, p2: { x: 420, y: 170, w: 32, h: 60 } }
   },
   {
-    bgImage: 'url("img/fundo da faze doiss.jpeg")',
+    bgImage: 'url("img/fundo da fase quatro.jpeg")',
     platforms: [
       { x: 0, y: 560, w: 800, h: 40, color: '#2b3a24', topColor: '#4d7c38' },
       { x: 50, y: 450, w: 200, h: 20, color: '#2b3a24', topColor: '#4d7c38' },
@@ -89,14 +89,14 @@ const fases = [
     doors: { p1: { x: 120, y: 160, w: 32, h: 60 }, p2: { x: 650, y: 160, w: 32, h: 60 } }
   },
   {
-    bgImage: 'url("img/fundo.jpg")',
+    bgImage: 'url("img/fundo da fase sinco.jpeg")',
     platforms: [
-      { x: 0, y: 560, w: 150, h: 40, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 650, y: 560, w: 150, h: 40, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 200, y: 460, w: 120, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 480, y: 460, w: 120, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 340, y: 350, w: 120, h: 20, color: '#3d271d', topColor: '#2d6a4f' },
-      { x: 100, y: 230, w: 600, h: 20, color: '#3d271d', topColor: '#2d6a4f' }
+      { x: 0, y: 560, w: 150, h: 40, color: '#1b2a1a', topColor: '#3d6c28' },
+      { x: 650, y: 560, w: 150, h: 40, color: '#1b2a1a', topColor: '#3d6c28' },
+      { x: 200, y: 460, w: 120, h: 20, color: '#1b2a1a', topColor: '#3d6c28' },
+      { x: 480, y: 460, w: 120, h: 20, color: '#1b2a1a', topColor: '#3d6c28' },
+      { x: 340, y: 350, w: 120, h: 20, color: '#1b2a1a', topColor: '#3d6c28' },
+      { x: 100, y: 230, w: 600, h: 20, color: '#1b2a1a', topColor: '#3d6c28' }
     ],
     hazards: [
       { x: 150, y: 580, w: 500, h: 20, type: 'toxic', color: '#ff4757' },
