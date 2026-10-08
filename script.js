@@ -3,16 +3,16 @@ const ctx = canvas.getContext('2d');
 
 let faseAtual = 0;
 
-// Carregar Imagens dos Personagens com os nomes corretos (.jpeg)
+// Carregar Imagens dos Personagens (.jpeg)
 const imgPlayer1 = new Image();
 imgPlayer1.src = 'img/personagem verde.jpeg';
 
 const imgPlayer2 = new Image();
 imgPlayer2.src = 'img/personagem roxo.jpeg';
 
-// Jogador 1 (Verde) e Jogador 2 (Roxo)
+// Jogador 1 (Verde) e Jogador 2 (Roxo) - TAMANHO AUMENTADO (60x75)
 const player1 = { 
-  x: 50, y: 480, width: 40, height: 50, 
+  x: 50, y: 460, width: 60, height: 75, 
   glowColor: 'rgba(46, 213, 115, 0.8)',
   vx: 0, vy: 0, 
   speed: 5, jump: -12, grounded: false, element: 'green',
@@ -20,7 +20,7 @@ const player1 = {
 };
 
 const player2 = { 
-  x: 100, y: 480, width: 40, height: 50, 
+  x: 120, y: 460, width: 60, height: 75, 
   glowColor: 'rgba(155, 89, 182, 0.8)',
   vx: 0, vy: 0, 
   speed: 5, jump: -12, grounded: false, element: 'purple',
@@ -48,7 +48,7 @@ const fases = [
       { x: 350, y: 550, w: 100, h: 10, type: 'green', color: '#2ed573' },
       { x: 350, y: 460, w: 80, h: 10, type: 'purple', color: '#9b59b6' }
     ],
-    doors: { p1: { x: 350, y: 180, w: 32, h: 60 }, p2: { x: 420, y: 180, w: 32, h: 60 } }
+    doors: { p1: { x: 340, y: 165, w: 40, h: 75 }, p2: { x: 420, y: 165, w: 40, h: 75 } }
   },
   {
     bgImage: 'url("img/fundo da fase doiss.jpeg")',
@@ -63,7 +63,7 @@ const fases = [
       { x: 200, y: 550, w: 400, h: 10, type: 'toxic', color: '#ff4757' },
       { x: 200, y: 450, w: 60, h: 10, type: 'green', color: '#2ed573' }
     ],
-    doors: { p1: { x: 150, y: 180, w: 32, h: 60 }, p2: { x: 620, y: 180, w: 32, h: 60 } }
+    doors: { p1: { x: 150, y: 165, w: 40, h: 75 }, p2: { x: 610, y: 165, w: 40, h: 75 } }
   },
   {
     bgImage: 'url("img/funo da fase trê.jpeg")',
@@ -80,7 +80,7 @@ const fases = [
       { x: 300, y: 450, w: 200, h: 10, type: 'green', color: '#2ed573' },
       { x: 130, y: 340, w: 50, h: 10, type: 'purple', color: '#9b59b6' }
     ],
-    doors: { p1: { x: 340, y: 170, w: 32, h: 60 }, p2: { x: 420, y: 170, w: 32, h: 60 } }
+    doors: { p1: { x: 330, y: 155, w: 40, h: 75 }, p2: { x: 430, y: 155, w: 40, h: 75 } }
   },
   {
     bgImage: 'url("img/fundo da fase quatro.jpeg")',
@@ -95,7 +95,7 @@ const fases = [
       { x: 100, y: 550, w: 600, h: 10, type: 'purple', color: '#9b59b6' },
       { x: 350, y: 330, w: 100, h: 10, type: 'toxic', color: '#ff4757' }
     ],
-    doors: { p1: { x: 120, y: 160, w: 32, h: 60 }, p2: { x: 650, y: 160, w: 32, h: 60 } }
+    doors: { p1: { x: 120, y: 145, w: 40, h: 75 }, p2: { x: 640, y: 145, w: 40, h: 75 } }
   },
   {
     bgImage: 'url("img/fundo da fase sinco.jpeg")',
@@ -112,13 +112,13 @@ const fases = [
       { x: 220, y: 450, w: 80, h: 10, type: 'green', color: '#2ed573' },
       { x: 500, y: 450, w: 80, h: 10, type: 'purple', color: '#9b59b6' }
     ],
-    doors: { p1: { x: 360, y: 170, w: 32, h: 60 }, p2: { x: 410, y: 170, w: 32, h: 60 } }
+    doors: { p1: { x: 350, y: 155, w: 40, h: 75 }, p2: { x: 410, y: 155, w: 40, h: 75 } }
   }
 ];
 
 function resetPlayerPos() {
-  player1.x = 50; player1.y = 480; player1.vx = 0; player1.vy = 0;
-  player2.x = 100; player2.y = 480; player2.vx = 0; player2.vy = 0;
+  player1.x = 50; player1.y = 460; player1.vx = 0; player1.vy = 0;
+  player2.x = 120; player2.y = 460; player2.vx = 0; player2.vy = 0;
 }
 
 function updateControls() {
@@ -197,15 +197,15 @@ function checkWin() {
   }
 }
 
-// Desenhar as imagens dos personagens na tela
+// Desenhar personagens removendo o fundo da imagem automaticamente
 function drawPlayer(p) {
   if (!p.img.complete) return;
 
   ctx.save();
-  ctx.shadowColor = p.glowColor;
-  ctx.shadowBlur = 10;
+  
+  // Efeito 'multiply' para tirar fundo branco/claro do personagem
+  ctx.globalCompositeOperation = 'multiply';
 
-  // Inverte a imagem ao caminhar para a esquerda
   if (p.vx < 0) {
     ctx.translate(p.x + p.width, p.y);
     ctx.scale(-1, 1);
@@ -230,8 +230,8 @@ function drawDoor(door, color, symbol) {
   ctx.strokeRect(door.x + 2, door.y + 2, door.w - 4, door.h - 4);
 
   ctx.fillStyle = color;
-  ctx.font = '16px sans-serif';
-  ctx.fillText(symbol, door.x + 8, door.y + 35);
+  ctx.font = '20px sans-serif';
+  ctx.fillText(symbol, door.x + 10, door.y + 45);
   ctx.restore();
 }
 
@@ -276,7 +276,7 @@ function gameLoop() {
   drawDoor(currentFase.doors.p1, '#2ed573', '🍃');
   drawDoor(currentFase.doors.p2, '#9b59b6', '🔮');
 
-  // Desenhar os teus personagens
+  // Desenhar os personagens
   drawPlayer(player1);
   drawPlayer(player2);
 
