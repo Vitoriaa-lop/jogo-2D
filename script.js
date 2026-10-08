@@ -3,21 +3,19 @@ const ctx = canvas.getContext('2d');
 
 let faseAtual = 0;
 
-// Jogador 1 (Verde) e Jogador 2 (Roxo) desenhados via Canvas
+// Jogador 1 (Fantasma Verde) e Jogador 2 (Fantasma Roxo)
 const player1 = { 
-  x: 50, y: 435, width: 40, height: 60, 
-  color: '#2ed573', glowColor: 'rgba(46, 213, 115, 0.8)',
-  vx: 0, vy: 0, 
-  speed: 5, jump: -12, grounded: false, element: 'green',
-  facing: 'right'
+  x: 50, y: 500, width: 28, height: 38, 
+  colorMain: '#2ed573', colorSecondary: '#7bed9f', glowColor: 'rgba(46, 213, 115, 0.6)',
+  eyeColor: '#ffffff', pupilColor: '#1e272e', vx: 0, vy: 0, 
+  speed: 5, jump: -12, grounded: false, element: 'green' 
 };
 
 const player2 = { 
-  x: 140, y: 435, width: 40, height: 60, 
-  color: '#9b59b6', glowColor: 'rgba(155, 89, 182, 0.8)',
-  vx: 0, vy: 0, 
-  speed: 5, jump: -12, grounded: false, element: 'purple',
-  facing: 'right'
+  x: 90, y: 500, width: 28, height: 38, 
+  colorMain: '#8e44ad', colorSecondary: '#9b59b6', glowColor: 'rgba(142, 68, 173, 0.6)',
+  eyeColor: '#ffffff', pupilColor: '#1e272e', vx: 0, vy: 0, 
+  speed: 5, jump: -12, grounded: false, element: 'purple' 
 };
 
 const gravity = 0.5;
@@ -26,7 +24,7 @@ const keys = {};
 window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
-// Fases do Jogo
+// Fases do Jogo com as imagens correspondentes
 const fases = [
   {
     bgImage: 'url("img/fundo.jpg")',
@@ -41,7 +39,7 @@ const fases = [
       { x: 350, y: 550, w: 100, h: 10, type: 'green', color: '#2ed573' },
       { x: 350, y: 460, w: 80, h: 10, type: 'purple', color: '#9b59b6' }
     ],
-    doors: { p1: { x: 340, y: 150, w: 50, h: 90 }, p2: { x: 420, y: 150, w: 50, h: 90 } }
+    doors: { p1: { x: 350, y: 180, w: 32, h: 60 }, p2: { x: 420, y: 180, w: 32, h: 60 } }
   },
   {
     bgImage: 'url("img/fundo da fase doiss.jpeg")',
@@ -56,7 +54,7 @@ const fases = [
       { x: 200, y: 550, w: 400, h: 10, type: 'toxic', color: '#ff4757' },
       { x: 200, y: 450, w: 60, h: 10, type: 'green', color: '#2ed573' }
     ],
-    doors: { p1: { x: 150, y: 150, w: 50, h: 90 }, p2: { x: 610, y: 150, w: 50, h: 90 } }
+    doors: { p1: { x: 150, y: 180, w: 32, h: 60 }, p2: { x: 620, y: 180, w: 32, h: 60 } }
   },
   {
     bgImage: 'url("img/funo da fase trê.jpeg")',
@@ -73,7 +71,7 @@ const fases = [
       { x: 300, y: 450, w: 200, h: 10, type: 'green', color: '#2ed573' },
       { x: 130, y: 340, w: 50, h: 10, type: 'purple', color: '#9b59b6' }
     ],
-    doors: { p1: { x: 330, y: 140, w: 50, h: 90 }, p2: { x: 430, y: 140, w: 50, h: 90 } }
+    doors: { p1: { x: 340, y: 170, w: 32, h: 60 }, p2: { x: 420, y: 170, w: 32, h: 60 } }
   },
   {
     bgImage: 'url("img/fundo da fase quatro.jpeg")',
@@ -88,7 +86,7 @@ const fases = [
       { x: 100, y: 550, w: 600, h: 10, type: 'purple', color: '#9b59b6' },
       { x: 350, y: 330, w: 100, h: 10, type: 'toxic', color: '#ff4757' }
     ],
-    doors: { p1: { x: 120, y: 130, w: 50, h: 90 }, p2: { x: 640, y: 130, w: 50, h: 90 } }
+    doors: { p1: { x: 120, y: 160, w: 32, h: 60 }, p2: { x: 650, y: 160, w: 32, h: 60 } }
   },
   {
     bgImage: 'url("img/fundo da fase sinco.jpeg")',
@@ -105,42 +103,28 @@ const fases = [
       { x: 220, y: 450, w: 80, h: 10, type: 'green', color: '#2ed573' },
       { x: 500, y: 450, w: 80, h: 10, type: 'purple', color: '#9b59b6' }
     ],
-    doors: { p1: { x: 350, y: 140, w: 50, h: 90 }, p2: { x: 410, y: 140, w: 50, h: 90 } }
+    doors: { p1: { x: 360, y: 170, w: 32, h: 60 }, p2: { x: 410, y: 170, w: 32, h: 60 } }
   }
 ];
 
 function resetPlayerPos() {
-  player1.x = 50; player1.y = 435; player1.vx = 0; player1.vy = 0; player1.facing = 'right';
-  player2.x = 140; player2.y = 435; player2.vx = 0; player2.vy = 0; player2.facing = 'right';
+  player1.x = 50; player1.y = 480; player1.vx = 0; player1.vy = 0;
+  player2.x = 90; player2.y = 480; player2.vx = 0; player2.vy = 0;
 }
 
 function updateControls() {
-  // Controle Player 1 (Verde: A / D)
-  if (keys['KeyA']) {
-    player1.vx = -player1.speed;
-    player1.facing = 'left';
-  } else if (keys['KeyD']) {
-    player1.vx = player1.speed;
-    player1.facing = 'right';
-  } else {
-    player1.vx = 0;
-  }
+  if (keys['KeyA']) player1.vx = -player1.speed;
+  else if (keys['KeyD']) player1.vx = player1.speed;
+  else player1.vx = 0;
 
   if (keys['KeyW'] && player1.grounded) {
     player1.vy = player1.jump;
     player1.grounded = false;
   }
 
-  // Controle Player 2 (Roxo: Setas)
-  if (keys['ArrowLeft']) {
-    player2.vx = -player2.speed;
-    player2.facing = 'left';
-  } else if (keys['ArrowRight']) {
-    player2.vx = player2.speed;
-    player2.facing = 'right';
-  } else {
-    player2.vx = 0;
-  }
+  if (keys['ArrowLeft']) player2.vx = -player2.speed;
+  else if (keys['ArrowRight']) player2.vx = player2.speed;
+  else player2.vx = 0;
 
   if (keys['ArrowUp'] && player2.grounded) {
     player2.vy = player2.jump;
@@ -159,4 +143,169 @@ function applyPhysics(p) {
   for (let plat of currentFase.platforms) {
     if (p.x < plat.x + plat.w && p.x + p.width > plat.x &&
         p.y < plat.y + plat.h && p.y + p.height > plat.y) {
-      if (p
+      if (p.vy > 0 && p.y + p.height - p.vy <= plat.y) {
+        p.y = plat.y - p.height;
+        p.vy = 0;
+        p.grounded = true;
+      }
+    }
+  }
+
+  if (p.x < 0) p.x = 0;
+  if (p.x + p.width > canvas.width) p.x = canvas.width - p.width;
+}
+
+function checkHazards(p) {
+  const currentFase = fases[faseAtual];
+  for (let h of currentFase.hazards) {
+    if (p.x < h.x + h.w && p.x + p.width > h.x &&
+        p.y < h.y + h.h && p.y + p.height > h.y) {
+      if (h.type === 'toxic') resetPlayerPos();
+      if (h.type === 'green' && p.element !== 'green') resetPlayerPos();
+      if (h.type === 'purple' && p.element !== 'purple') resetPlayerPos();
+    }
+  }
+}
+
+function checkWin() {
+  const doors = fases[faseAtual].doors;
+
+  const p1InDoor = (player1.x < doors.p1.x + doors.p1.w && player1.x + player1.width > doors.p1.x &&
+                    player1.y < doors.p1.y + doors.p1.h && player1.y + player1.height > doors.p1.y);
+
+  const p2InDoor = (player2.x < doors.p2.x + doors.p2.w && player2.x + player2.width > doors.p2.x &&
+                    player2.y < doors.p2.y + doors.p2.h && player2.y + player2.height > doors.p2.y);
+
+  if (p1InDoor && p2InDoor) {
+    if (faseAtual < fases.length - 1) {
+      faseAtual++;
+      resetPlayerPos();
+    } else {
+      alert("Parabéns! Completaram todas as fases!");
+      faseAtual = 0;
+      resetPlayerPos();
+    }
+  }
+}
+
+// Desenhar os Personagens em formato de Fantasma
+function drawPlayer(p) {
+  ctx.save();
+
+  // Brilho místico
+  ctx.shadowColor = p.glowColor;
+  ctx.shadowBlur = 12;
+
+  // Gradiente do corpo
+  let grad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.height);
+  grad.addColorStop(0, p.colorSecondary);
+  grad.addColorStop(1, p.colorMain);
+  ctx.fillStyle = grad;
+
+  // Desenhar corpo de fantasma (Cabeça redonda + base ondulada)
+  const radius = p.width / 2;
+  const bottomY = p.y + p.height - 6;
+
+  ctx.beginPath();
+  // Cabeça
+  ctx.arc(p.x + radius, p.y + radius, radius, Math.PI, 0, false);
+  // Lado direito
+  ctx.lineTo(p.x + p.width, bottomY);
+  // Ondas na parte inferior
+  ctx.quadraticCurveTo(p.x + p.width * 0.83, p.y + p.height, p.x + p.width * 0.66, bottomY);
+  ctx.quadraticCurveTo(p.x + p.width * 0.5, p.y + p.height - 10, p.x + p.width * 0.33, bottomY);
+  ctx.quadraticCurveTo(p.x + p.width * 0.17, p.y + p.height, p.x, bottomY);
+  // Lado esquerdo
+  ctx.lineTo(p.x, p.y + radius);
+  ctx.closePath();
+  ctx.fill();
+
+  // Olhos expressivos
+  ctx.shadowBlur = 0;
+
+  let eyeOffsetX = p.vx < 0 ? -2 : (p.vx > 0 ? 2 : 0);
+
+  // Fundo dos olhos (Branco)
+  ctx.fillStyle = p.eyeColor;
+  ctx.beginPath();
+  ctx.ellipse(p.x + 9 + eyeOffsetX, p.y + 14, 4, 5, 0, 0, Math.PI * 2);
+  ctx.ellipse(p.x + 19 + eyeOffsetX, p.y + 14, 4, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Pupilas
+  ctx.fillStyle = p.pupilColor;
+  ctx.beginPath();
+  ctx.arc(p.x + 9 + eyeOffsetX + (p.vx < 0 ? -1 : p.vx > 0 ? 1 : 0), p.y + 14, 2, 0, Math.PI * 2);
+  ctx.arc(p.x + 19 + eyeOffsetX + (p.vx < 0 ? -1 : p.vx > 0 ? 1 : 0), p.y + 14, 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawDoor(door, color, symbol) {
+  ctx.save();
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8;
+
+  ctx.fillStyle = '#1e272e';
+  ctx.fillRect(door.x, door.y, door.w, door.h);
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.strokeRect(door.x + 2, door.y + 2, door.w - 4, door.h - 4);
+
+  ctx.fillStyle = color;
+  ctx.font = '16px sans-serif';
+  ctx.fillText(symbol, door.x + 8, door.y + 35);
+  ctx.restore();
+}
+
+function gameLoop() {
+  const currentFase = fases[faseAtual];
+
+  if (currentFase.bgImage) {
+    document.body.style.backgroundImage = currentFase.bgImage;
+  }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  updateControls();
+  applyPhysics(player1);
+  applyPhysics(player2);
+
+  checkHazards(player1);
+  checkHazards(player2);
+
+  checkWin();
+
+  // Plataformas
+  for (let plat of currentFase.platforms) {
+    ctx.fillStyle = plat.color;
+    ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
+    
+    ctx.fillStyle = plat.topColor;
+    ctx.fillRect(plat.x, plat.y, plat.w, 4);
+  }
+
+  // Obstáculos
+  for (let h of currentFase.hazards) {
+    ctx.save();
+    ctx.shadowColor = h.color;
+    ctx.shadowBlur = 6;
+    ctx.fillStyle = h.color;
+    ctx.fillRect(h.x, h.y, h.w, h.h);
+    ctx.restore();
+  }
+
+  // Portais de saída
+  drawDoor(currentFase.doors.p1, '#2ed573', '🍃');
+  drawDoor(currentFase.doors.p2, '#9b59b6', '🔮');
+
+  // Desenhar personagens
+  drawPlayer(player1);
+  drawPlayer(player2);
+
+  requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
