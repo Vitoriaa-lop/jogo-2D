@@ -3,19 +3,28 @@ const ctx = canvas.getContext('2d');
 
 let faseAtual = 0;
 
+// Carregar Imagens dos Personagens
+const imgPlayer1 = new Image();
+imgPlayer1.src = 'img/personagem verde.jpeg';
+
+const imgPlayer2 = new Image();
+imgPlayer2.src = 'img/personagem roxo.jpeg';
+
 // Jogador 1 (Fantasma Verde) e Jogador 2 (Fantasma Roxo)
 const player1 = { 
-  x: 50, y: 500, width: 28, height: 38, 
-  colorMain: '#2ed573', colorSecondary: '#7bed9f', glowColor: 'rgba(46, 213, 115, 0.6)',
-  eyeColor: '#ffffff', pupilColor: '#1e272e', vx: 0, vy: 0, 
-  speed: 5, jump: -12, grounded: false, element: 'green' 
+  x: 50, y: 500, width: 40, height: 45, 
+  glowColor: 'rgba(46, 213, 115, 0.6)',
+  vx: 0, vy: 0, 
+  speed: 5, jump: -12, grounded: false, element: 'green',
+  img: imgPlayer1
 };
 
 const player2 = { 
-  x: 90, y: 500, width: 28, height: 38, 
-  colorMain: '#8e44ad', colorSecondary: '#9b59b6', glowColor: 'rgba(142, 68, 173, 0.6)',
-  eyeColor: '#ffffff', pupilColor: '#1e272e', vx: 0, vy: 0, 
-  speed: 5, jump: -12, grounded: false, element: 'purple' 
+  x: 90, y: 500, width: 40, height: 45, 
+  glowColor: 'rgba(142, 68, 173, 0.6)',
+  vx: 0, vy: 0, 
+  speed: 5, jump: -12, grounded: false, element: 'purple',
+  img: imgPlayer2
 };
 
 const gravity = 0.5;
@@ -24,7 +33,7 @@ const keys = {};
 window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
-// Fases do Jogo com as imagens correspondentes
+// Fases do Jogo
 const fases = [
   {
     bgImage: 'url("img/fundo.jpg")',
@@ -188,56 +197,20 @@ function checkWin() {
   }
 }
 
-// Desenhar os Personagens em formato de Fantasma
+// Desenhar o Personagem com a Imagem
 function drawPlayer(p) {
   ctx.save();
-
-  // Brilho místico
   ctx.shadowColor = p.glowColor;
-  ctx.shadowBlur = 12;
+  ctx.shadowBlur = 10;
 
-  // Gradiente do corpo
-  let grad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.height);
-  grad.addColorStop(0, p.colorSecondary);
-  grad.addColorStop(1, p.colorMain);
-  ctx.fillStyle = grad;
-
-  // Desenhar corpo de fantasma (Cabeça redonda + base ondulada)
-  const radius = p.width / 2;
-  const bottomY = p.y + p.height - 6;
-
-  ctx.beginPath();
-  // Cabeça
-  ctx.arc(p.x + radius, p.y + radius, radius, Math.PI, 0, false);
-  // Lado direito
-  ctx.lineTo(p.x + p.width, bottomY);
-  // Ondas na parte inferior
-  ctx.quadraticCurveTo(p.x + p.width * 0.83, p.y + p.height, p.x + p.width * 0.66, bottomY);
-  ctx.quadraticCurveTo(p.x + p.width * 0.5, p.y + p.height - 10, p.x + p.width * 0.33, bottomY);
-  ctx.quadraticCurveTo(p.x + p.width * 0.17, p.y + p.height, p.x, bottomY);
-  // Lado esquerdo
-  ctx.lineTo(p.x, p.y + radius);
-  ctx.closePath();
-  ctx.fill();
-
-  // Olhos expressivos
-  ctx.shadowBlur = 0;
-
-  let eyeOffsetX = p.vx < 0 ? -2 : (p.vx > 0 ? 2 : 0);
-
-  // Fundo dos olhos (Branco)
-  ctx.fillStyle = p.eyeColor;
-  ctx.beginPath();
-  ctx.ellipse(p.x + 9 + eyeOffsetX, p.y + 14, 4, 5, 0, 0, Math.PI * 2);
-  ctx.ellipse(p.x + 19 + eyeOffsetX, p.y + 14, 4, 5, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Pupilas
-  ctx.fillStyle = p.pupilColor;
-  ctx.beginPath();
-  ctx.arc(p.x + 9 + eyeOffsetX + (p.vx < 0 ? -1 : p.vx > 0 ? 1 : 0), p.y + 14, 2, 0, Math.PI * 2);
-  ctx.arc(p.x + 19 + eyeOffsetX + (p.vx < 0 ? -1 : p.vx > 0 ? 1 : 0), p.y + 14, 2, 0, Math.PI * 2);
-  ctx.fill();
+  // Inverter o lado do personagem de acordo com a direção que ele anda
+  if (p.vx < 0) {
+    ctx.translate(p.x + p.width, p.y);
+    ctx.scale(-1, 1);
+    ctx.drawImage(p.img, 0, 0, p.width, p.height);
+  } else {
+    ctx.drawImage(p.img, p.x, p.y, p.width, p.height);
+  }
 
   ctx.restore();
 }
@@ -301,7 +274,7 @@ function gameLoop() {
   drawDoor(currentFase.doors.p1, '#2ed573', '🍃');
   drawDoor(currentFase.doors.p2, '#9b59b6', '🔮');
 
-  // Desenhar personagens
+  // Desenhar os personagens usando as imagens carregadas
   drawPlayer(player1);
   drawPlayer(player2);
 
